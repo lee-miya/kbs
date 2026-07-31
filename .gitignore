@@ -1,0 +1,22 @@
+# 本地 AI / 编辑器
+AGENTS.md
+.cursor/
+.vscode/
+*.code-workspace
+
+# 环境与凭证
+.env
+.env.*
+!.env.example
+credentials.json
+*.pem
+*.key
+test-env.ps1
+
+# 系统与临时
+Thumbs.db
+Desktop.ini
+.DS_Store
+*.tmp
+*.log
+.git/COMMIT_MSG_TMP
