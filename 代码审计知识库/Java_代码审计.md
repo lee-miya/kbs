@@ -1,7 +1,7 @@
 # Java 代码审计分册
 
 > 适用：Java Web（Servlet/Spring/Struts/Shiro 体系）及中间件。
-> 更新：2026-07-31（v1.0）
+> 更新：2026-08-09（v1.1：时效条目 + EncryptInterceptor fail-open）
 
 ---
 
@@ -83,6 +83,7 @@
 | Spring | 4.x/5.x 历史：CVE-2022-22965（Spring4Shell，JDK9+ + WAR 部署）、CVE-2022-22947（Gateway SpEL） |
 | Struts2 | S2 系列 OGNL，devMode 开启 |
 | Dubbo | Hessian 反序列化多 CVE |
+| Tomcat Tribes / EncryptInterceptor | CVE-2026-34486：解密失败仍 `messageReceived` → 反序列化（见时效条目） |
 
 ## 11. 审计 Checklist
 
@@ -98,7 +99,16 @@
 
 CodeQL（Java 规则成熟，适合批量 sink 回溯）、tabby（国产 Java 静态分析）、find-sec-bugs（SpotBugs 安全插件）、ysoserial（链生成）、marshalsec（各格式 payload）、JNDI-Injection-Exploit、IDEA 远程调试
 
-## 13. 参考资料
+## 13. 时效条目（周更回链）
+
+### 2026-08-09 · Tomcat EncryptInterceptor fail-open（CVE-2026-34486）
+
+- **危险特征**：安全拦截器在 catch 中只打日志，随后仍把原始 `msg` 交给下游；下游含原生反序列化。
+- **利用条件**：集群启用 EncryptInterceptor；attacker 可达 Tribes receiver；classpath 有可用 gadget 时升至 RCE。
+- **审计要点（通杀）**：凡「验签/解密/鉴权 → 业务」管道，失败路径必须中断；对安全补丁做回归 diff，盯控制流是否被挪出 try。
+- **自测锚点**：在任意 Java 项目中找出一处「catch 后继续用未校验输入」的候选并标注文件:行号。
+
+## 14. 参考资料
 
 - [Java 反序列化备忘录（GrrrDog）](https://github.com/GrrrDog/Java-Deserialization-Cheat-Sheet)
 - [CC1 链逐行审计分析](https://www.cnblogs.com/kgty/p/18487179)、[CC6 链分析](https://www.cnblogs.com/kgty/p/18574218)

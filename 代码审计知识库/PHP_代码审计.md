@@ -2,7 +2,7 @@
 
 > 适用：PHP Web 应用（CMS / 论坛 / 商城 / 板卡程序）。
 > 用法：对照"危险特征"grep 源码，命中后按"审计要点"追踪数据流，按"验证思路"构造请求。
-> 更新：2026-07-31（v1.0）
+> 更新：2026-08-09（v1.1：时效条目 + CI4 上传模式）
 
 ---
 
@@ -26,6 +26,7 @@
 | 黑名单（禁 php/asp…） | 双写（.pphphp）、大小写（.PhP）、变体（.phtml/.phar/.php5/.pht）、点空格点（Windows）、::$DATA（Windows/NTFS） |
 | 仅查 Content-Type | 改包 MIME 为 image/jpeg |
 | 仅 getimagesize | 图片马（真图 + 尾部插 PHP），配合包含或解析漏洞执行 |
+| 仅内容 MIME/`is_image` 类规则、不校验客户端扩展 | 魔数合法 + 文件名 `.php`（CI4 CVE-2026-63223 典型）；见「时效条目」 |
 | 前端校验 | 直接改包 |
 | 二次渲染 | 找未被渲染的保留区插马，成功率低、需专用工具 |
 | .htaccess / .user.ini | Apache：上传 .htaccess 改解析；Nginx+fpm：.user.ini 指定 auto_prepend_file 让任意图片变马 |
@@ -113,7 +114,16 @@
 
 Seay（危险函数初筛）、PHPStan/Phan（静态）、RIPS、Semgrep（自定义规则）、Xdebug（断点跟踪数据流）、Burp（重放验证）、phar 生成器（phpggc 对应 PHP 链，类比 ysoserial）
 
-## 14. 参考资料
+## 14. 时效条目（周更回链）
+
+### 2026-08-09 · CodeIgniter4 `is_image`/`mime_in` 扩展名缺口（CVE-2026-63223）
+
+- **危险特征**：只靠内容型规则放行上传；`getClientName` 原样落地；目录可解析 PHP。
+- **利用条件**：无独立扩展白名单 / 未服务端重命名；Web 根可执行。
+- **审计要点**：规则表是否同时有 `ext_in`；`move()` 路径是否用户可控；`public/` 下是否存上传。
+- **自测锚点**：在示例项目中标出「仅改扩展名能否绕过」的最小证明路径（勿对未授权目标实测）。
+
+## 15. 参考资料
 
 - [代码审计-PHP 篇：从原理到实战的全景指南](https://www.gm7.org/archives/120527)
 - [羊城杯官方 Writeup（hash_hmac 数组绕过、PHP UAF 等实战点）](https://raw.githubusercontent.com/gwht/2020YCBCTF/main/wp/羊城杯官方Writeup.pdf)

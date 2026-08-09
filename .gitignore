@@ -20,3 +20,6 @@ Desktop.ini
 *.tmp
 *.log
 .git/COMMIT_MSG_TMP
+
+# Firecrawl 临时检索输出
+.firecrawl/
