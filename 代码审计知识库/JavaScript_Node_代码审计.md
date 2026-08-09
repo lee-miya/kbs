@@ -1,7 +1,7 @@
 # JavaScript / Node.js 代码审计分册
 
 > 适用：Node.js 后端（Express/Koa/Nest）、前端构建链、npm 生态。
-> 更新：2026-07-31（v1.0）
+> 更新：2026-08-09（v1.1：补时效条目区；与体例对齐）
 
 ---
 
@@ -68,7 +68,13 @@
 
 npm audit / osv-scanner（依赖）、Semgrep js/ts 规则、CodeQL（JS 规则好）、eslint-plugin-security、Burp（重放）、node --inspect 调试
 
-## 11. 参考资料
+## 11. 时效条目（周更回链）
+
+> 新模式按日期追加。供应链与原型链污染手法也可对照红队 `02_Web` / `02-03`。
+
+（本批暂无新条。）
+
+## 12. 参考资料
 
 - 原型链污染到 RCE 链汇总（PortSwigger Research）：https://portswigger.net/research/server-side-prototype-pollution
 - PayloadsAllTheThings（NoSQL 注入、SSTI）：https://github.com/swisskyrepo/PayloadsAllTheThings

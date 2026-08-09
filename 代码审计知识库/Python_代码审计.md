@@ -1,7 +1,7 @@
 # Python 代码审计分册
 
 > 适用：Python Web（Flask/Django/FastAPI）、脚本与工具。
-> 更新：2026-07-31（v1.0）
+> 更新：2026-08-09（v1.1：补时效条目区；与体例对齐）
 
 ---
 
@@ -65,7 +65,13 @@
 
 bandit（官方安全扫描）、Semgrep python 规则集、CodeQL、pip-audit、RIPS（不支持 py，用 Semgrep 补）、mitmproxy 看回调流量
 
-## 10. 参考资料
+## 10. 时效条目（周更回链）
+
+> 新模式按日期追加。手法向内容见红队 `02_Web渗透`；此处只留代码特征。
+
+（本批暂无新条；下期周更优先补：AI Agent / Langflow 类 Python 执行面若出现可复用模式。）
+
+## 11. 参考资料
 
 - bandit 规则文档：https://bandit.readthedocs.io/
 - pickle 安全模型：https://docs.python.org/3/library/pickle.html
