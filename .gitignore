@@ -11,7 +11,18 @@ AGENTS.md
 credentials.json
 *.pem
 *.key
+*.p12
+*.pfx
+id_rsa
+id_rsa.pub
 test-env.ps1
+
+# 个人笔记 / 未脱敏沉淀（勿入库；仅保留目录说明）
+个人笔记/*
+!个人笔记/README.md
+**/*_本地.md
+**/*_私密.md
+**/本地沉淀.md
 
 # 系统与临时
 Thumbs.db
@@ -21,5 +32,5 @@ Desktop.ini
 *.log
 .git/COMMIT_MSG_TMP
 
-# Firecrawl 临时检索输出
+# 检索与抓取临时输出
 .firecrawl/
