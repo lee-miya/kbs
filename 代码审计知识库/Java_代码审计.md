@@ -108,6 +108,13 @@ CodeQL（Java 规则成熟，适合批量 sink 回溯）、tabby（国产 Java �
 - **审计要点（通杀）**：凡「验签/解密/鉴权 → 业务」管道，失败路径必须中断；对安全补丁做回归 diff，盯控制流是否被挪出 try。
 - **自测锚点**：在任意 Java 项目中找出一处「catch 后继续用未校验输入」的候选并标注文件:行号。
 
+### 2026-08-09 · CI/CD 管理面未认证反序列化（TeamCity CVE-2026-63077 启示）
+
+- **危险特征**：构建/CI 产品对 HTTP(S) 请求做 Java 原生反序列化或等价对象还原；端点无需登录或仅弱鉴权。
+- **利用条件**：管理面或 Agent 通信口暴露；classpath 可构造 gadget（视实现而定）。
+- **审计要点**：① 枚举所有 `ObjectInputStream` / 自定义反序列化读口；② 是否绑定本机、是否强制认证；③ 构建凭据与仓库令牌是否与执行面同进程。
+- **自测**：对照官方 advisory，列出「应禁止公网」的端口/路径类清单（不写完整载荷）。
+
 ## 14. 参考资料
 
 - [Java 反序列化备忘录（GrrrDog）](https://github.com/GrrrDog/Java-Deserialization-Cheat-Sheet)
