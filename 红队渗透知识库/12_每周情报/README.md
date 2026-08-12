@@ -80,5 +80,5 @@
 
 | 期次 | 文件 | 亮点 |
 | --- | --- | --- |
-| 2026-08-12 | `2026-08-12_每周渗透情报.md` | PT：AFD 在野 0day；KEV LoadMaster；SharePoint 勒索+JWT；AI：IronCurtain；CTF：KCTF/CRLF；免杀 06-02；钓鱼 03-01；**边界 09-03 专册 + 周更 3.8** |
+| 2026-08-12 | `2026-08-12_每周渗透情报.md` | PT：AFD 在野 0day；KEV：LoadMaster + **Cisco 20349 + Metabase 72898**；SharePoint 勒索+JWT；AI：IronCurtain + **FLAWED**；CTF：KCTF/CRLF/**Fury**；免杀 06-02；钓鱼 ConsentFix；边界 09-03 |
 | 2026-08-09 | `2026-08-09_每周渗透情报.md` | KEV：Langflow/Tomcat/N-central/TeamCity；AI 案例：NOVA/PRWeaver/CodePecker；08-12 PT 待核验 |

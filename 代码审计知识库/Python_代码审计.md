@@ -76,6 +76,14 @@ bandit（官方安全扫描）、Semgrep python 规则集、CodeQL、pip-audit�
 - **审计要点**：① 列出一切执行用户代码的端点；② 校验路径是否已 eval/exec；③ 默认鉴权与绑定地址；④ 升级优先于「加 WAF」。
 - **自测**：在示例 Agent 项目中标出「只读校验」名不副实的函数。
 
+### 2026-08-12 · 应用库 SQLi → 未认证提权管理员（Metabase CVE-2026-72898 启示）
+
+- **危险特征**：未认证或弱鉴权接口可向**应用自身数据库**拼 SQL；应用库内存管理员哈希/会话/配置；连接串与下游 DB 凭据同库存放。
+- **利用条件**：BI/低代码控制面公网；版本 ≥58 且未打点版本（以 GHSA/厂商表为准）；已在野并入 KEV。
+- **审计要点**：① 区分「业务查询 SQL」与「应用元数据库」写入路径；② 一切拼 SQL 的未认证路由标 P0；③ 密钥/连接串与应用库隔离、轮换。
+- **自测**：画出「未认证输入 → 应用库」数据流，确认参数化与鉴权缺一不可。
+- **链接**：https://www.metabase.com/blog/security-update · https://github.com/metabase/metabase/security/advisories/GHSA-vwf4-m7j8-wcjf
+
 （下期继续：其他 Python Agent 框架同类模式对照。）
 
 ## 11. 参考资料

@@ -1,7 +1,7 @@
 # 知识库总索引与高频速查表
 
 > **审计库加载入口**（人读导航见 [`README.md`](README.md)）。新对话先读本文件，再按需打开分册。  
-> 最近更新：2026-08-12（v1.7：周更——IronCurtain 案例；SharePoint JWT / CRLF desync 时效；PT AFD 0day）
+> 最近更新：2026-08-12（v1.8：晚间周更——FLAWED 案例；Metabase/Cisco KEV；Fury/ConsentFix/免杀补位）
 
 ## 一、分册索引
 

@@ -8,7 +8,7 @@
 > 五、**AI 审计案例提炼**（周更硬性：拆管线/提示词/验证闭环 → 可迁移纪律）。
 > **时效规则**：条目按批次排列，标注时间窗；单一来源未经厂商证实的条目标注"待核实"。
 > **入库红线**：仅公开研究；域名/IP/凭证/IOC/可直接复用载荷不入库。
-> 版本：v1.4（2026-08-12 周更：IronCurtain 案例 + CTF 拾遗 CRLF/KCTF；PT/KEV 跟踪清单刷新）
+> 版本：v1.5（2026-08-12 晚间增量：FLAWED AI 补丁案例；Fury CTF 拾遗；Metabase/Cisco KEV 跟踪刷新）
 
 ---
 
@@ -134,6 +134,15 @@
 - **识别与自测**：PyInstaller onefile；常量区有「成功/提示」类明密对
 - **链接**：https://bbs.kanxue.com/thread-292455.htm
 
+### 2026-08-12 · Apache Fury 黑名单不全 + 关类注册 → 写文件链（来源：AliCTF 2026 SU · Fileury）
+
+- **技巧**：`requireClassRegistration(false)` 时仅靠 deny list 不够；AspectJ `StoreableCachingMap` + CC LazyMap/TiedMapEntry 可走任意路径写文件
+- **适用面**：Java 反序列化 | 审计
+- **迁移价值**：**审计危险特征**——生产必须 allowlist；写文件链与 RCE 同级
+- **识别与自测**：搜 Fury builder / disallowed 列表；classpath 是否含 AspectJ/CC
+- **局限**：WP 非近 7 日新放（复扫升格）；不入库完整 PoC
+- **链接**：https://www.ctfiot.com/295357.html
+
 ---
 
 ## 五、AI 审计案例提炼（周更写入区）
@@ -230,19 +239,34 @@
   - [ ] 验证分层升格，避免一上来全系统 VM；发现流与 exploit 流分开
 - **链接**：https://blog.apnic.net/2026/08/11/finding-zero-days-with-any-model/ ；https://github.com/provos/ironcurtain
 
+### 2026-08-12 · FLAWED：前沿模型漏洞补丁仍须人审（Off-by-1 Labs / 1Password）
+
+- **场景**：对 6 个新近披露、训练数据中少见的复杂 CVE/GHSA，用两款前沿「可网安」推理模型批量生成补丁（公开称 6080 条量级），评估是否真正修复且不改业务行为。
+- **管线与分工**：结构化提示词模板（每洞多套）× 多种环境配置 × 双模型；生成后走自动验证 + 人工复核；检出「翻补丁」行为（模型试图检索已有官方补丁）并剔除。
+- **提示词 / 任务拆解**：九类结构化模板；产出按五档归类——完整修复且行为不变 / 完整修复但改行为 / 未修 / 修旧引新 / 未修且引新。
+- **工具与上下文**：开源 [FLAWED](https://github.com/Off-by-1-Labs/FLAWED) 生成/比对/验证脚手架；配套数据集与论文。
+- **验证闭环**：不只看「PoC 是否失败」，还看行为回归与是否引入新洞；公开结论：完整且不改行为的成功率约 **26%**；未修/引新合计约 **53.9%**；大量「看似修好」实为针对 PoC 字符串的脆弱守卫。
+- **成果与局限**：强证据表明「AI 挖洞管线」≠「AI 可无人值守修洞」；成本按次计仍低于资深人工，但必须领域专家终审。样本限于 6 洞、两模型，外推需谨慎。
+- **可迁移纪律**：
+  - [ ] AI 生成补丁默认标 **B/C 级**，直至有回归测试 + 根因级修复证据（禁止只挡 PoC 字符串）
+  - [ ] 验收清单强制含：行为是否改变、是否引入新 sink、是否只改 allow→deny 表面逻辑
+  - [ ] 发现 Agent 与修复 Agent 分会话；修复会话禁止静默拉取「官方补丁」冒充自研成功
+- **链接**：https://1password.com/blog/why-ai-generated-patches-still-require-human-review · https://github.com/Off-by-1-Labs/FLAWED
+
 ---
 
 ## 下期跟踪清单（2026-08-13 起，每周核查）
 
-1. Metabase 未认证管理员：CVE 编号、受影响版本与 KEV 动向（本周仅标题级线索）；
-2. AD CS CVE-2026-62818 利用成熟度与域打点清单；
+1. ~~Metabase~~ → **已升格** CVE-2026-72898 / KEV；继续盯自托管暴露面与补丁残留；
+2. AD CS CVE-2026-62818：仍缺公开武器化细节；域周加厚 ESC 与补丁联动；
 3. CVE-2026-42533（NGINX）公开 PoC 与 KEV 动向；
 4. Check Point CVE-2026-18574 在野确认；
 5. SharePoint 本月 PT 新 RCE（66808 等）武器化进度；
-6. IronCurtain / HTTP Terminator 后续开源技能包与复现笔记；
+6. IronCurtain / HTTP Terminator / FLAWED 后续数据集与复现笔记；
 7. **新公开 AI 代码审计案例** → 写入第五节；
 8. Azure Key Vault CVE-2026-62825 官方公告核实；
-9. TeamCity / Langflow / LoadMaster 补丁后暴露面残留。
+9. TeamCity / Langflow / LoadMaster / **Cisco ASA 20349** 补丁后暴露面残留；
+10. FortiSandbox CVE-2026-39808 暴露面是否进入护网常见指纹。
 
 ---
 

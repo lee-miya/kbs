@@ -122,6 +122,14 @@ CodeQL（Java 规则成熟，适合批量 sink 回溯）、tabby（国产 Java �
 - **审计要点**：① 全库搜 `RequireSignedTokens`、自写 `ValidateToken`；② 确认 audience/issuer **与** 签名校验均启用且不可被配置关掉；③ 嵌套 actor/内部 token 须各自验签，禁止「外层 none + 内层假签」。
 - **自测锚点**：在任意 Java/.NET 身份模块中标出「取密钥」与「验签」是否为两个独立、均不可跳过的步骤。
 
+### 2026-08-12 · Apache Fury「关注册 + 不完整黑名单」（AliCTF Fileury 启示）
+
+- **危险特征**：`Fury.builder().requireClassRegistration(false)`（或等价「允许未注册类」）；仅靠 `disallowed.txt`/类名黑名单拦 gadget；黑名单未覆盖 AspectJ `SimpleCache$StoreableCachingMap`、部分 CC LazyMap/TiedMapEntry 组合。
+- **利用条件**：反序列化入口可达；classpath 含 AspectJ weaver / Commons Collections 等；黑名单非 allowlist。
+- **审计要点**：① 搜 `requireClassRegistration`、`deserialize(`；② 生产必须 **白名单注册** 或等价 allowlist，禁止只靠 deny list；③ 评估「写文件链」与 RCE 链同等优先级（非 RCE 也可落马）。
+- **自测锚点**：列出项目中一切二进制反序列化库（Fury/Hessian/Java 原生）及各自的类过滤策略类型（allow vs deny）。
+- **局限**：WP 发布时间早于本周窗口；手法仍可迁移，标「复扫升格」。
+
 ## 14. 参考资料
 
 - [Java 反序列化备忘录（GrrrDog）](https://github.com/GrrrDog/Java-Deserialization-Cheat-Sheet)
