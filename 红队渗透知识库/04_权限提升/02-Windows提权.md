@@ -55,7 +55,9 @@ wmic service get name,pathname | findstr /i "program files"
 - UAC 绕过（管理员 → 高完整性）：fodhelper/computerdefaults 注册表劫持、bypassuac 模块——注意 UAC 绕过不是提权，是完整性级别提升。
 
 ## 4. 内核 LPE
-对照 `09_漏洞库/02-提权漏洞速查.md`（PrintNightmare、HiveNightmare 等）。规则：先 `wesng` 出缺失补丁列表再选 exp；生产环境慎用蓝屏风险的 exp。
+对照 `09_漏洞库/02-提权漏洞速查.md`（PrintNightmare、HiveNightmare、**CVE-2026-68820 AFD.sys** 等）。规则：先 `wesng` 出缺失补丁列表再选 exp；生产环境慎用蓝屏风险的 exp。
+
+> 2026-08 PT：CVE-2026-68820（AFD.sys UAF→SYSTEM）已在野，与钓鱼初始访问链叠加时补丁优先级极高。详见 `12_每周情报/2026-08-12_每周渗透情报.md`。
 
 ## 5. 提权后固化
 - `net user` 影子账户 / 克隆管理员（07 分册）。

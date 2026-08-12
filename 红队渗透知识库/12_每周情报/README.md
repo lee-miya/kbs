@@ -59,4 +59,5 @@
 
 | 期次 | 文件 | 亮点 |
 | --- | --- | --- |
+| 2026-08-12 | `2026-08-12_每周渗透情报.md` | PT：AFD 在野 0day；KEV LoadMaster；SharePoint 勒索+JWT 绕过；AI：IronCurtain；CTF：KCTF XOR / CRLF desync |
 | 2026-08-09 | `2026-08-09_每周渗透情报.md` | KEV：Langflow/Tomcat/N-central/TeamCity；AI 案例：NOVA/PRWeaver/CodePecker；08-12 PT 待核验 |

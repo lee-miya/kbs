@@ -1,7 +1,7 @@
 # Java 代码审计分册
 
 > 适用：Java Web（Servlet/Spring/Struts/Shiro 体系）及中间件。
-> 更新：2026-08-09（v1.1：时效条目 + EncryptInterceptor fail-open）
+> 更新：2026-08-12（v1.2：JWT 验签失效链时效）
 
 ---
 
@@ -114,6 +114,13 @@ CodeQL（Java 规则成熟，适合批量 sink 回溯）、tabby（国产 Java �
 - **利用条件**：管理面或 Agent 通信口暴露；classpath 可构造 gadget（视实现而定）。
 - **审计要点**：① 枚举所有 `ObjectInputStream` / 自定义反序列化读口；② 是否绑定本机、是否强制认证；③ 构建凭据与仓库令牌是否与执行面同进程。
 - **自测**：对照官方 advisory，列出「应禁止公网」的端口/路径类清单（不写完整载荷）。
+
+### 2026-08-12 · JWT/S2S「解析密钥 ≠ 验签」（SharePoint CVE-2026-55040 启示）
+
+- **危险特征**：自建 Bearer/S2S 校验中显式 `RequireSignedTokens = false`；或仅用 `x5t`/密钥标识**解析** SigningToken，却从不对签名做密码学验证；「签名非空字符串」即视为通过。
+- **利用条件**：未认证可取得可信证书指纹/元数据（如公开 JWKS/STS 元数据端点）；可提交自定义 JWT。
+- **审计要点**：① 全库搜 `RequireSignedTokens`、自写 `ValidateToken`；② 确认 audience/issuer **与** 签名校验均启用且不可被配置关掉；③ 嵌套 actor/内部 token 须各自验签，禁止「外层 none + 内层假签」。
+- **自测锚点**：在任意 Java/.NET 身份模块中标出「取密钥」与「验签」是否为两个独立、均不可跳过的步骤。
 
 ## 14. 参考资料
 

@@ -8,7 +8,7 @@
 > 五、**AI 审计案例提炼**（周更硬性：拆管线/提示词/验证闭环 → 可迁移纪律）。
 > **时效规则**：条目按批次排列，标注时间窗；单一来源未经厂商证实的条目标注"待核实"。
 > **入库红线**：仅公开研究；域名/IP/凭证/IOC/可直接复用载荷不入库。
-> 版本：v1.3（2026-08-09 周更：第五节写入 NOVA / PRWeaver / CodePecker）
+> 版本：v1.4（2026-08-12 周更：IronCurtain 案例 + CTF 拾遗 CRLF/KCTF；PT/KEV 跟踪清单刷新）
 
 ---
 
@@ -111,11 +111,28 @@
 
 ---
 
-## 四、CTF 拾遗（2026-07 批次）
+## 四、CTF 拾遗（2026-07 批次 + 2026-08-12 追加）
 
 - **Crypto**：低指数攻击（e 过小开方/广播攻击）与密钥流重用（异或消 keystream）仍是送分点也是失分点；
 - **Web 通用**：JWT 三件套（alg=none、弱密钥爆破、HS/RS 混淆）出场率依旧最高；
 - **方法论**：多篇 writeup 体现"先威胁建模再动手"趋势——先列信任边界与状态机再选测试点，比上来就 fuzz 效率高。
+
+### 2026-08-12 · CRLF Header Injection → Desync（来源：PortSwigger / TurtleSec）
+
+- **技巧**：把「头注入」当成可拆 HTTP 流的原语，升格为 Request Splitting / CL.TE / 浏览器侧锁定 desync，而非停在 XSS/跳转。
+- **适用面**：Web | 协议 | CDN 前后端差异
+- **迁移价值**：审计危险特征（头拼接未剥 CRLF）；红队打点条件（反代+连接复用）
+- **识别与自测**：输入是否进入下游请求头；投换行后是否出现「第二个请求」语义；对比前后端解析
+- **局限**：完整蠕虫化链路依赖特定基础设施，生产验证须授权且最小化
+- **链接**：https://portswigger.net/research/crlf-powered-desync-attacks
+
+### 2026-08-12 · PyInstaller 冻结常量已知明文还原 XOR（来源：看雪 KCTF2602）
+
+- **技巧**：`enc ⊕ UTF-8(可见提示串)` 还原短循环 key；entry pyc 可能是诱饵，真逻辑在加密 code object
+- **适用面**：Reverse | 恶意样本初析
+- **迁移价值**：仅赛题/样本分析向；标注**迁移有限**
+- **识别与自测**：PyInstaller onefile；常量区有「成功/提示」类明密对
+- **链接**：https://bbs.kanxue.com/thread-292455.htm
 
 ---
 
@@ -195,19 +212,37 @@
   - [ ] 输出必须带回文件:行号与可达理由，否则降为 C 级
 - **链接**：https://segmentfault.com/a/1190000048123768
 
+### 2026-08-12 · IronCurtain：任意模型 + FSM 编排挖洞（Niels Provos / APNIC Blog）
+
+- **场景**：开源 C/基础设施组件；复现「前沿模型才有的」历史洞（如 OpenBSD TCP SACK 类），并自主发现多年潜伏整数截断等（具体 CVE 披露中，机制可学）。
+- **管线与分工**：
+  - YAML 定义的有限状态机（FSM）工作流 `vuln-discovery`
+  - **Orchestrator**：战略路由；**不读目标源码**，只读 append-only **execution journal**
+  - 专用 Agent：按 journal 轮换（分析 / harness / 验证等）；每步新上下文窗口，从磁盘 journal 水合
+  - 人：终审、升级 harness 层级、必要时拆解「利用确认」步骤（发现流与 exploit 开发流分离）
+- **提示词 / 任务拆解**：纪律句——「静态假说，执行验证；其余是噪声」。PoC = 可执行 harness，证明可达与异常（内存破坏等），不是口头推理。
+- **工具与上下文**：IronCurtain 开源框架；LiteLLM 可把同一 FSM 接到不同模型（Opus/Sonnet/GLM 等）；容器隔离。
+- **验证闭环**：分层 harness——① 单函数隔离 fuzz → ② 多组件 harness → ③ 端到端 VM；仅在需要时升层。无执行证据的静态报告视为未完成。
+- **成果与局限**：token 成本高（公开文称单次中等代码库可达千万级 token）；弱蒸馏本地小模型可能跑不动工作流；AUP 会阻断完整利用开发——须把「可利用性确认」拆步并由人门禁。
+- **可迁移纪律**：
+  - [ ] Orchestrator（或主会话）禁止吞整仓源码；状态进 journal/文件，步骤换干净上下文
+  - [ ] 强制「假说 → 可执行验证」；无 harness/复现则结论降级
+  - [ ] 验证分层升格，避免一上来全系统 VM；发现流与 exploit 流分开
+- **链接**：https://blog.apnic.net/2026/08/11/finding-zero-days-with-any-model/ ；https://github.com/provos/ironcurtain
+
 ---
 
-## 下期跟踪清单（2026-08-10 起，每周核查）
+## 下期跟踪清单（2026-08-13 起，每周核查）
 
-1. 2026-08-12 Microsoft Patch Tuesday：SharePoint 双 CVE 链、内核提权正式编号与利用成熟度；
-2. CVE-2026-42533（NGINX）公开 PoC 与 KEV 动向；
-3. 多智能体挖洞研究的代码发布；
-4. Azure Key Vault CVE-2026-62825 官方公告核实；
-5. Langflow / Tomcat KEV 后的在野利用变种（新端口指纹、自动化框架 IOC 仅作防御参考，不入库攻击细节）；
-6. 奇安信 2026 年中报告全文数据（发布后补充量化条目）；
-7. **新公开 AI 代码审计案例**（厂商战报 / GitHub Security Lab / 开源管线）→ 写入第五节并抽可迁移纪律；
-8. Check Point CVE-2026-18574 在野与利用成熟度；
-9. TeamCity CVE-2026-63077 补丁覆盖与构建链残留凭据排查清单。
+1. Metabase 未认证管理员：CVE 编号、受影响版本与 KEV 动向（本周仅标题级线索）；
+2. AD CS CVE-2026-62818 利用成熟度与域打点清单；
+3. CVE-2026-42533（NGINX）公开 PoC 与 KEV 动向；
+4. Check Point CVE-2026-18574 在野确认；
+5. SharePoint 本月 PT 新 RCE（66808 等）武器化进度；
+6. IronCurtain / HTTP Terminator 后续开源技能包与复现笔记；
+7. **新公开 AI 代码审计案例** → 写入第五节；
+8. Azure Key Vault CVE-2026-62825 官方公告核实；
+9. TeamCity / Langflow / LoadMaster 补丁后暴露面残留。
 
 ---
 

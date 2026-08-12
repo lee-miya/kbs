@@ -74,7 +74,7 @@ AFL++（插桩 fuzzing）、libFuzzer/honggfuzz、ASAN/UBSAN/MSAN、GDB+pwndbg/g
 
 ---
 
-## 时效条目（2026-07 批次）
+## 时效条目（2026-07 批次 + 2026-08-12）
 
 ### 基础设施组件 C 审计案例两则（本期重点）
 
@@ -100,4 +100,10 @@ AFL++（插桩 fuzzing）、libFuzzer/honggfuzz、ASAN/UBSAN/MSAN、GDB+pwndbg/g
 
 微软 2026-07 单月修复 622 枚（Windows 416，约去年同期 3 倍），Win32k EoP 集群；厂商归因 AI 辅助挖洞规模化（详见综合分册）。Windows 内核方向关注：Win32k 句柄/对象引用计数、GDI 对象生命周期、驱动 IOCTL 校验与 double fetch。
 
-> 来源：F5 公告 K000162097 与 Stan Shaw/Zhenpeng Lin 研究、friday-go.icu 攻击链分析、奇安信 CERT 通告、爱坤sec Redis PoC 分析、Rapid7/ZDI 补丁日评述、mito753/Kernel-Exploit-Dojo。
+### 2026-08-12 · 分层 harness 验证（IronCurtain 启示）
+
+- **危险特征 / 方法**：AI 或人工对 C 组件只做静态「可能溢出」结论、无执行证据。
+- **审计要点**：单函数隔离 fuzz → 多组件 harness → 必要时全系统/VM；整数截断/分配路径优先用 sanitizer 复现。
+- **自测**：任选一处长度计算与写入分离的代码，写出最小单函数 harness 思路（不含完整利用）。
+
+> 来源：F5 公告 K000162097 与 Stan Shaw/Zhenpeng Lin 研究、friday-go.icu 攻击链分析、奇安信 CERT 通告、爱坤sec Redis PoC 分析、Rapid7/ZDI 补丁日评述、mito753/Kernel-Exploit-Dojo、APNIC IronCurtain（2026-08-11）。

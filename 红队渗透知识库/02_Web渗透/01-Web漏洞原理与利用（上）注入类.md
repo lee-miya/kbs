@@ -88,8 +88,19 @@ c'a't /et'c'/passw?                      # 引号/通配符绕关键字
 
 使用场景：Shiro（rememberMe，见 09 漏洞库）、Weblogic/JBoss/Fastjson/Jackson 参数、session 文件、消息队列。
 
+## 6. HTTP Header Injection → 请求拆分 / Desync（2026-08 加厚）
+
+> 来源精读：PortSwigger *CRLF-Powered Desync Attacks*（与 TurtleSec 合作，BHUSA/DEFCON 公开）。  
+> 纪律：只写识别与升格条件；不写可打穿生产的完整蠕虫载荷。
+
+- **危险特征**：用户输入进入请求行/头（路径拼接、自定义上游头、日志/追踪头回写）且未剥离 `CR`/`LF`（`%0d%0a`）。
+- **升格路径**：Header Injection → HTTP Request Splitting → CL.TE / 浏览器侧 IP·连接锁定 desync → 缓存投毒、隧道绕过访问控制、甚至 desync「蠕虫化」传播面。
+- **打点自测**：① 找「输入出现在下游 HTTP 头」的点；② 注入单行换行看是否拆出第二个请求特征；③ 有 CDN/反代时优先测前后端解析差异（不要只测反射 XSS）。
+- **回链**：审计侧见综合分册「CTF 拾遗」；红队认证/API 面见 `03-API与认证攻击面.md`。
+
 ## 自测锚点
 
 - [ ] 能手写布尔盲注与时间盲注的逐字符猜解脚本（不依赖 sqlmap）。
 - [ ] 能说明堆叠注入为什么能直接 RCE，并举一个中间件例子。
 - [ ] 看到 `rO0AB` 能立即说出接下来的完整利用链（选链 → 生成 → 投递 → 回显/反弹）。
+- [ ] 能说明「CRLF 头注入」为何可能升格为请求走私/desync，而不只是 XSS。
