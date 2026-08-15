@@ -8,7 +8,7 @@
 > 五、**AI 审计案例提炼**（周更硬性：拆管线/提示词/验证闭环 → 可迁移纪律）。
 > **时效规则**：条目按批次排列，标注时间窗；单一来源未经厂商证实的条目标注"待核实"。
 > **入库红线**：仅公开研究；域名/IP/凭证/IOC/可直接复用载荷不入库。
-> 版本：v1.5（2026-08-12 晚间增量：FLAWED AI 补丁案例；Fury CTF 拾遗；Metabase/Cisco KEV 跟踪刷新）
+> 版本：v1.6（2026-08-15：HTTP Terminator 升格精析；cleanPath / dangling-byte 拾遗；PAN GP / NetScaler 跟踪）
 
 ---
 
@@ -111,7 +111,7 @@
 
 ---
 
-## 四、CTF 拾遗（2026-07 批次 + 2026-08-12 追加）
+## 四、CTF 拾遗（2026-07 批次 + 2026-08-12 / 08-15 追加）
 
 - **Crypto**：低指数攻击（e 过小开方/广播攻击）与密钥流重用（异或消 keystream）仍是送分点也是失分点；
 - **Web 通用**：JWT 三件套（alg=none、弱密钥爆破、HS/RS 混淆）出场率依旧最高；
@@ -142,6 +142,24 @@
 - **识别与自测**：搜 Fury builder / disallowed 列表；classpath 是否含 AspectJ/CC
 - **局限**：WP 非近 7 日新放（复扫升格）；不入库完整 PoC
 - **链接**：https://www.ctfiot.com/295357.html
+
+### 2026-08-15 · `cleanPath` 双条件不正交 + `///` 空段（来源：看雪 2026 软安赛 Web）
+
+- **技巧**：`path.contains("..") && StringUtils.cleanPath(path).contains("../")` 两谓词语义不同；`///` 产生空路径段，规范化结果可不含 `../`，从而绕过第二段。
+- **适用面**：Web | Java（Spring WebFlux `FileSystemResource` 静态目录）
+- **迁移价值**：**审计危险特征**——路径安全检查必须在**同一规范化结果**上做；「先脏检查再 clean 再脏检查」常不正交
+- **识别与自测**：搜 `cleanPath` / `contains("..")` 组合；静态资源是否绑文件系统目录；投多余斜杠后规范化串是否仍含穿越语义
+- **局限**：赛题 WP 非近 7 日首发（复扫升格）；不入库完整穿越载荷
+- **链接**：https://bbs.kanxue.com/thread-290978.htm
+
+### 2026-08-15 · dangling-byte：缺 1 字节推迟第二响应（来源：PortSwigger HTTP Terminator）
+
+- **技巧**：走私/拆分场景下让第二条请求缺最后 1 字节，后端不立刻产出第二响应，等受害者请求补齐后再出队——消掉 stacked-response 竞态
+- **适用面**：Web | 协议 | 反代连接复用
+- **迁移价值**：**红队+审计**——「部分请求」是武器化原语；审计侧关注前后端是否复用连接、是否按完整报文切分
+- **识别与自测**：授权环境对比「完整走私」与「少 1 字节」时第二响应何时出现；禁止对未授权目标做体积扫描
+- **局限**：依赖 method-agnostic 后端等部署组合；不写完整 RQP 链
+- **链接**：https://portswigger.net/research/http-terminator
 
 ---
 
@@ -253,20 +271,42 @@
   - [ ] 发现 Agent 与修复 Agent 分会话；修复会话禁止静默拉取「官方补丁」冒充自研成功
 - **链接**：https://1password.com/blog/why-ai-generated-patches-still-require-human-review · https://github.com/Off-by-1-Labs/FLAWED
 
+### 2026-08-15 · HTTP Terminator：专长编码的四阶段研究管线（PortSwigger / James Kettle）
+
+- **场景**：HTTP desync **研究**（不是通用源码审计）；在授权赏金/VDP 目标上评测假说；08-12 更新白皮书并开源参考实现。
+- **管线与分工**：
+  1. **Ideation / seeker**：从 RFC/文档抽可测假说（触发器、模式、武器化点子）
+  2. **Evaluation / flamer+validator**：对授权活站大规模评测；假说必须「在真实前后端组合上成立」才算研究线索
+  3. **Weaponization / investigator**：把成立假说接到可报告影响；**成功判定由不可被模型改写的确定性代码锁死**
+  4. **Cascade**：对每个成立假说追问「别处如何检出」「原点还能否打出别的类」
+  - 人：设计门禁、处理「自主性地平线」外的新类；模型：假说与证据，不负责最终真值
+- **提示词 / 任务拆解**：把作者自己的 desync 方法论编成阶段与约束（窄问题 + 可测假说）。环境接口可「重命名/遮罩」以降低拒答与假阳性，但验收不能靠提示词——要靠代码门。
+- **工具与上下文**：开源仓库分 `seeker`（Python）/`flamer`（Java）/`validator`（Burp 扩展）/`investigator`（需外部 MCP）；**不是 Burp AT**。
+- **验证闭环**：活站评测 + 确定性成功条件；分步换干净上下文，只传递证据与脚本，避免上一步幻觉污染下一步。级联来自「已证明假说」而非再扫一遍 RFC。
+- **成果与局限**：公开称发现多类新触发/武器化（含 dangling-byte、shared-parser confusion 等）；完全放手仍会在新类上失败——人在环的价值是 cascade 与题目选择，不是替模型点运行。
+- **可迁移纪律**：
+  - [ ] 把**你自己会的**审计/研究步骤编成阶段，禁止「整仓问有没有洞」
+  - [ ] 假说必须可测；「只在某实现上成立、无真实部署」标研究线索，不入库
+  - [ ] 成功/失败由确定性代码判定；模型不得改写验收函数
+  - [ ] 每条成立结论强制 cascade：邻近解析器、同类配置、邻近分支
+- **链接**：https://portswigger.net/research/http-terminator · https://github.com/PortSwigger/http-terminator · https://portswigger.net/blog/can-ai-invent-new-attack-techniques-new-research-from-james-kettle-and-portswigger-research
+
 ---
 
-## 下期跟踪清单（2026-08-13 起，每周核查）
+## 下期跟踪清单（2026-08-16 起，每周核查）
 
-1. ~~Metabase~~ → **已升格** CVE-2026-72898 / KEV；继续盯自托管暴露面与补丁残留；
+1. ~~Metabase~~ → **已升格** CVE-2026-72898 / KEV；本周公开多起自托管失陷 → 未修按失陷假设（轮换连接库凭据）；
 2. AD CS CVE-2026-62818：仍缺公开武器化细节；域周加厚 ESC 与补丁联动；
 3. CVE-2026-42533（NGINX）公开 PoC 与 KEV 动向；
 4. Check Point CVE-2026-18574 在野确认；
 5. SharePoint 本月 PT 新 RCE（66808 等）武器化进度；
-6. IronCurtain / HTTP Terminator / FLAWED 后续数据集与复现笔记；
-7. **新公开 AI 代码审计案例** → 写入第五节；
+6. ~~HTTP Terminator~~ → **已升格精析**；继续盯录像/新类洞披露；IronCurtain / FLAWED 复现笔记；
+7. **新公开 AI 代码审计案例** → 写入第五节（本周已扫 evilsocket/audit，作工具观察不重复当主条）；
 8. Azure Key Vault CVE-2026-62825 官方公告核实；
-9. TeamCity / Langflow / LoadMaster / **Cisco ASA 20349** 补丁后暴露面残留；
-10. FortiSandbox CVE-2026-39808 暴露面是否进入护网常见指纹。
+9. TeamCity / Langflow / LoadMaster / **Cisco ASA 20349** / **NetScaler 8452** 补丁后暴露面残留；
+10. FortiSandbox CVE-2026-39808 暴露面是否进入护网常见指纹；
+11. PAN GP 0297/0298 是否出现在野/入 KEV；Ivanti 与国产 VPN 门户通告继续滚；
+12. UIUCTF 2026 官方 WP 放出后再提炼。
 
 ---
 

@@ -1,7 +1,7 @@
 # Java 代码审计分册
 
 > 适用：Java Web（Servlet/Spring/Struts/Shiro 体系）及中间件。
-> 更新：2026-08-12（v1.2：JWT 验签失效链时效）
+> 更新：2026-08-15（v1.3：cleanPath 双条件不正交时效）
 
 ---
 
@@ -129,6 +129,14 @@ CodeQL（Java 规则成熟，适合批量 sink 回溯）、tabby（国产 Java �
 - **审计要点**：① 搜 `requireClassRegistration`、`deserialize(`；② 生产必须 **白名单注册** 或等价 allowlist，禁止只靠 deny list；③ 评估「写文件链」与 RCE 链同等优先级（非 RCE 也可落马）。
 - **自测锚点**：列出项目中一切二进制反序列化库（Fury/Hessian/Java 原生）及各自的类过滤策略类型（allow vs deny）。
 - **局限**：WP 发布时间早于本周窗口；手法仍可迁移，标「复扫升格」。
+
+### 2026-08-15 · 路径双检查不正交：`cleanPath` + `///` 空段（看雪软安赛启示）
+
+- **危险特征**：`path.contains("..") && StringUtils.cleanPath(path).contains("../")`（或先脏检查、再规范化、再脏检查）；静态资源用 `FileSystemResource` 绑到文件系统目录。
+- **利用条件**：用户可控路径进入静态资源/下载接口；规范化会折叠多余斜杠并吃掉空段，使第二谓词看不到 `../`。
+- **审计要点**：① 路径安全谓词必须作用在**同一**规范化结果上；② 禁止「contains 穿越符」与「clean 后再 contains」混用当正交；③ 搜 `cleanPath` / `normalize` / `FileSystemResource`。
+- **自测锚点**：列出项目中所有「防 `..`」检查，标出规范化发生在检查前还是检查后。
+- **局限**：赛题 WP 复扫升格；不写完整穿越载荷。
 
 ## 14. 参考资料
 
