@@ -1,7 +1,7 @@
 # JavaScript / Node.js 代码审计分册
 
 > 适用：Node.js 后端（Express/Koa/Nest）、前端构建链、npm 生态。
-> 更新：2026-08-15（v1.3：dangling-byte / 部分请求时效）
+> 更新：2026-08-15（v1.4：Nabi AI — deprecated Server Action + Vault 单段通配）
 
 ---
 
@@ -86,6 +86,14 @@ npm audit / osv-scanner（依赖）、Semgrep js/ts 规则、CodeQL（JS 规则�
 - **审计要点**：① 自写解析器是否在 Content-Length 未满足时就切下一条；② 反代超时/半包如何转发；③ 勿只测完整畸形头——补一组「少 1 字节」用例。
 - **自测**：在授权实验室对比完整请求与缺尾字节时后端是否提前回第二响应（不写完整 RQP 链）。
 - **链接**：https://portswigger.net/research/http-terminator
+
+### 2026-08-15 · deprecated Server Action 字段 + Vault `+` 单段通配（UIUCTF Nabi AI）
+
+- **危险特征**：① Next.js `productionBrowserSourceMaps` 把 TypeScript 类型（含 **deprecated 仍声明的字段**）暴露到 `*.js.map`；② Server Action 仍读取该字段并原样当作上游 URL（头一并转发）；③ OpenBao/Vault 策略 `path "secret/data/+"`——`+` 是**单段通配**，不是「只匹配本意路径」。
+- **利用条件**：源码图可下载；服务端未丢弃弃用字段；应用 token 策略过宽。链：SSRF 泄 `X-Vault-Token` → 读同级 `secret/data/*`。
+- **审计要点**：① 生产是否关源码图；② grep deprecated / 可选字段是否仍进服务端；③ Vault/OpenBao 策略用字面路径，禁止图省事写 `+`/`*`；④ RSC `Next-Action` 入参与类型声明是否一致。
+- **自测**：在授权实验室对一份 Next.js + Vault 示例：标出「类型有、表单无、服务端仍读」的字段，并对照 HCL 是否可用字面路径收窄（不写完整 SSRF 载荷）。
+- **链接**：https://cybersecurityelite.com/ctf-writeups/uiuctf-2026-web-nabi-ai-writeup/
 
 ## 12. 参考资料
 

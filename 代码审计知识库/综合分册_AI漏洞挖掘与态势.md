@@ -8,7 +8,7 @@
 > 五、**AI 审计案例提炼**（周更硬性：拆管线/提示词/验证闭环 → 可迁移纪律）。
 > **时效规则**：条目按批次排列，标注时间窗；单一来源未经厂商证实的条目标注"待核实"。
 > **入库红线**：仅公开研究；域名/IP/凭证/IOC/可直接复用载荷不入库。
-> 版本：v1.6（2026-08-15：HTTP Terminator 升格精析；cleanPath / dangling-byte 拾遗；PAN GP / NetScaler 跟踪）
+> 版本：v1.7（2026-08-15 晚间：Nabi AI 拾遗；Gunra/Fortinet 与 Ivanti EPM 跟踪）
 
 ---
 
@@ -111,7 +111,7 @@
 
 ---
 
-## 四、CTF 拾遗（2026-07 批次 + 2026-08-12 / 08-15 追加）
+## 四、CTF 拾遗（2026-07 批次 + 2026-08-12 / 08-15 追加，晚间补 Nabi AI）
 
 - **Crypto**：低指数攻击（e 过小开方/广播攻击）与密钥流重用（异或消 keystream）仍是送分点也是失分点；
 - **Web 通用**：JWT 三件套（alg=none、弱密钥爆破、HS/RS 混淆）出场率依旧最高；
@@ -160,6 +160,15 @@
 - **识别与自测**：授权环境对比「完整走私」与「少 1 字节」时第二响应何时出现；禁止对未授权目标做体积扫描
 - **局限**：依赖 method-agnostic 后端等部署组合；不写完整 RQP 链
 - **链接**：https://portswigger.net/research/http-terminator
+
+### 2026-08-15 · deprecated 仍接线 + Vault `+` 单段通配（来源：UIUCTF 2026 · Nabi AI）
+
+- **技巧**：源码图里的弃用可选字段若服务端仍读取，可把上游 URL 指到 webhook 带走 `X-Vault-Token`；Vault/OpenBao ACL 的 `+` 匹配**恰好一段**，`secret/data/+` 覆盖 `nabi` 也覆盖 `flag`。
+- **适用面**：Web | Node / Next.js Server Actions | 密钥面
+- **迁移价值**：**审计危险特征**——「标了 deprecated ≠ 已断开」；密钥策略必须字面路径
+- **识别与自测**：搜 `sourceMappingURL` / `createServerReference` / `path ".../+"`；对比类型声明与服务端解构
+- **局限**：非官方 WP（战队/站点复盘）；赛题把三服务拆开，生产可能同构也可能更乱
+- **链接**：https://cybersecurityelite.com/ctf-writeups/uiuctf-2026-web-nabi-ai-writeup/
 
 ---
 
@@ -305,8 +314,9 @@
 8. Azure Key Vault CVE-2026-62825 官方公告核实；
 9. TeamCity / Langflow / LoadMaster / **Cisco ASA 20349** / **NetScaler 8452** 补丁后暴露面残留；
 10. FortiSandbox CVE-2026-39808 暴露面是否进入护网常见指纹；
-11. PAN GP 0297/0298 是否出现在野/入 KEV；Ivanti 与国产 VPN 门户通告继续滚；
-12. UIUCTF 2026 官方 WP 放出后再提炼。
+11. PAN GP 0297/0298 是否出现在野/入 KEV；**Ivanti EPM 已入库**；国产 VPN **门户**通告继续滚；
+12. ~~UIUCTF Nabi AI~~ → **已提炼**（deprecated Server Action + Vault `+`）；其余赛题 / **官方** WP 仍观察；
+13. Gunra / Fortinet 55591+24472 暴露面与失陷假设是否进入护网常见指纹。
 
 ---
 
