@@ -1,7 +1,7 @@
 ---
 name: kbs-skill-guard
 description: >-
-  Security-reviews Cursor/Claude SKILL.md files before they are committed or
+  Security-reviews Agent SKILL.md files before they are committed or
   installed. Use when creating, editing, or importing agent skills; when the
   user mentions Claude-Red, SKILL.md, skill security, overlay skills, or
   prompt injection in skills. Blocks exploit payloads, credential theft,
@@ -11,7 +11,7 @@ description: >-
 
 # Skill 安全审查
 
-任何 **新建 / 修改** 本仓库 `.cursor/skills/` 下的文件，或用户要求**安装第三方攻防 skill** 时，先完成本流程。清单全文：[`维护/Skill安全审查清单.md`](../../../维护/Skill安全审查清单.md)。
+任何 **新建 / 修改** 本仓库 `.agents/skills/` 下的文件，或用户要求**安装第三方攻防 skill** 时，先完成本流程。清单全文：[`维护/Skill安全审查清单.md`](../../../维护/Skill安全审查清单.md)。
 
 ## 本仓库 skill（必须）
 
@@ -21,7 +21,7 @@ description: >-
 
 ## 第三方 overlay（本机，默认不入库）
 
-允许装到 `~/.cursor/skills/` 的前提：
+允许装到本机用户级目录（推荐 `~/.agents/skills/`）的前提：
 
 - 已用清单做过**只读审查**（打开 README + 抽 1～2 个 SKILL.md 看是否含完整利用链、下载即执行、索要密钥）。
 - 用户明确同意本机安装。

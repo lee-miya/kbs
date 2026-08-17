@@ -33,11 +33,11 @@ description: >-
 | 安全 | 是否含完整载荷、可执行 scripts、提示注入风险 → 见审查清单 |
 | 建议动作 | 写入分册对照项 / 本机 overlay（须先审查）/ 观察 / 忽略 |
 
-禁止：把第三方 `SKILL.md` 整篇拷进 `.cursor/skills/` 或分册。允许：把**漏测轴、测试顺序、适用条件**改写成 KBS 体例后写入对应分册。
+禁止：把第三方 `SKILL.md` 整篇拷进 `.agents/skills/` 或分册。允许：把**漏测轴、测试顺序、适用条件**改写成 KBS 体例后写入对应分册。
 
 引入或改本仓库 skill 前，走 [`kbs-skill-guard`](../kbs-skill-guard/SKILL.md) 并运行 `维护/review-kbs-skills.ps1`。
 
 ## 完成后
 
 - 路线图勾选；关注源可追加高产仓库。
-- `git status` 排除 `AGENTS.md`、`.firecrawl/`、个人笔记；按仓库约定提交推送。
+- `git status` 排除 `AGENTS.local.md`、`.firecrawl/`、个人笔记；按仓库约定提交推送。

@@ -21,4 +21,4 @@ alwaysApply: false
 - 新增模式够高频再进 `INDEX.md` 速查表。
 - 单一来源未经厂商证实标注「待核实」。
 - 双库分工：审计=源码模式；红队=场景命令；交叉引用用相对路径。
-- Agent 作战入口：红队 `INDEX.md`、审计 `INDEX.md`；改 `.cursor/skills/` 须跑 `维护/review-kbs-skills.ps1`。
+- Agent 作战入口：根目录 `AGENTS.md` → 红队 `INDEX.md` 或审计 `INDEX.md`；改 `.agents/skills/` 须跑 `维护/review-kbs-skills.ps1`。

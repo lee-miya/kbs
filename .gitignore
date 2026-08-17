@@ -1,14 +1,22 @@
 # 本地 AI / 编辑器
-AGENTS.md
+AGENTS.local.md
+REASONIX.local.md
+CLAUDE.local.md
 .cursor/*
-!.cursor/skills/
-!.cursor/skills/**
 !.cursor/rules/
 .cursor/rules/*
 !.cursor/rules/kb-maintenance.mdc
 !.cursor/rules/red-team-operator.mdc
 .vscode/
 *.code-workspace
+
+# 品牌 Agent 适配目录（install-agent-skills.ps1 生成本地 junction，勿提交）
+.claude/
+.reasonix/
+.kimi/
+.kimi-code/
+.codex/
+.gemini/
 
 # 环境与凭证
 .env

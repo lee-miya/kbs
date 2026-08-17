@@ -7,14 +7,14 @@
 #>
 $ErrorActionPreference = "Stop"
 $Root = $PSScriptRoot
-$marker = Join-Path ".cursor\skills\kbs-red-team" "SKILL.md"
+$marker = Join-Path ".agents\skills\kbs-red-team" "SKILL.md"
 while ($Root) {
     if (Test-Path -LiteralPath (Join-Path $Root $marker)) { break }
     $parent = Split-Path -Parent $Root
     if (-not $parent -or $parent -eq $Root) { break }
     $Root = $parent
 }
-$SkillsRoot = Join-Path $Root ".cursor\skills"
+$SkillsRoot = Join-Path $Root ".agents\skills"
 $Allowed = @("kbs-red-team", "kbs-weekly-update", "kbs-skill-guard")
 $Fail = New-Object System.Collections.Generic.List[string]
 
