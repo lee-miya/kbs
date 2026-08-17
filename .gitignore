@@ -1,6 +1,10 @@
 # 本地 AI / 编辑器
 AGENTS.md
-.cursor/
+.cursor/*
+!.cursor/skills/
+!.cursor/skills/**
+!.cursor/rules/
+!.cursor/rules/**
 .vscode/
 *.code-workspace
 

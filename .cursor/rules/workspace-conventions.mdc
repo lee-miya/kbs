@@ -1,0 +1,135 @@
+---
+description: 工作区约定：中文回答、隐私保护、Git 提交推送
+alwaysApply: true
+---
+
+# 工作区约定
+
+## 中文回答
+
+面向用户的所有回答必须使用**简体中文**。
+
+- 解释、说明、总结、建议、错误分析等自然语言内容使用中文
+- 代码、命令、配置、文件路径、标识符可保留原文
+- 专有名词、库名、API 名称等业界通用英文写法可保留
+- 用户明确要求使用其他语言时，以用户要求为准
+
+## 版本控制隐私保护
+
+执行 `git add`、`git commit`、`git push`、创建 PR，或向仓库写入文档/示例/测试数据前，必须检查并处理敏感信息，**不得将个人隐私或环境信息提交到版本库**。
+
+### 提交前必须检查
+
+- 运行 `git diff` / `git status`，审查全部待提交内容
+- 不得提交：`.env`、`credentials.json`、密钥文件、含真实凭证的配置
+
+### 必须脱敏或泛化的内容
+
+| 类型 | 处理方式 |
+|------|----------|
+| 密码、口令、API Key、Token、Secret | 删除或替换为占位符（如 `[密码已脱敏]`、`[凭证已脱敏]`） |
+| 连接字符串中的凭证 | 保留结构，替换用户名为 `<用户>`、密码为 `[密码已脱敏]` |
+| 主机名、计算机名 | 替换为 `示例主机`、`HOST-01` 等泛化名称 |
+| 内网/公网 IP | 替换为 `10.0.0.1` 或 `[IP已脱敏]` |
+| 真实用户目录路径 | `C:\Users\hp\` → `C:\Users\<用户>\`；`/home/user/` → `/home/<用户>/` |
+| 邮箱、手机号、真实姓名 | 删除或替换为示例/占位符 |
+| 可识别的生产实例名、域名、组织内部名称 | 泛化为 `示例实例`、`example.com`、`[组织已脱敏]` |
+| 日志、截图、测试数据中的真实环境信息 | 摘录前脱敏或改用虚构示例 |
+
+### 允许保留
+
+- 公开文档中的官方示例
+- 已完全虚构、不含真实凭证的示例代码
+- 开源项目名、公开 CVE、通用技术术语
+
+### 无法安全脱敏时
+
+- 不要提交该文件或相关片段
+- 向用户说明原因，并建议改用 `.gitignore` 或本地未跟踪文件
+
+### Commit 与 PR
+
+- Commit message 与 PR 描述中不得包含主机名、真实路径、凭证或客户/环境标识
+- 使用中文或英文均可，但须简洁、无敏感信息
+
+## Git 提交与推送
+
+完成问题修复或代码修改后，**必须**将变更提交到本地仓库并推送到远程，无需用户再次提醒。
+
+### 何时执行
+
+- 修复 bug、实现功能、重构、测试或脚本更新等**有实际文件变更**的任务结束时
+- 同一任务的多轮修改可在全部完成后**一次性**提交，避免无意义的碎片化 commit
+- 纯问答、代码审查、仅解释说明且无文件改动时，**不要**创建空 commit
+
+### 提交流程
+
+1. 并行执行：`git status`、`git diff`、`git log -1 --format='%s'`（了解近期 commit 风格）
+2. 审查变更，确认不含敏感信息（见上文「版本控制隐私保护」）
+3. 仅 `git add` 与本次修改相关的文件；**不得**提交 `test-env.ps1`、`.env`、密钥或含真实凭证的配置
+4. 撰写简洁 commit message（中文或英文均可），说明「为什么」而非堆砌文件名；**不得**加入 `Co-authored-by: Cursor <cursoragent@cursor.com>`（或任何 Cursor/cursoragent 的 Co-authored-by）
+5. `git commit` 后立即用 `git log -1 --format=%B` 检查；若仍含上述 Cursor trailer（含系统自动追加），删除该行后对本次 HEAD 执行 `git commit --amend -F <文件>`，确认干净后再推送
+6. `git push` 到当前分支对应的远程
+7. 推送完成后向用户简要报告：commit hash、分支名、推送结果
+
+### 禁止 Cursor Co-authored-by
+
+- 所有由 Agent 创建的 commit message **不得**包含 `Co-authored-by: Cursor <cursoragent@cursor.com>`
+- 若提交后发现已包含：在 push 前 amend 清理；若已推送且允许强推当前分支，用 `--force-with-lease` 更新（**禁止**对 `main`/`master` force，除非用户明确要求）
+- 不要为清理该 trailer 而改写无关历史，除非用户明确要求
+
+### 安全与约束
+
+- **禁止** `git push --force` 到 `main`/`master`，除非用户明确要求
+- **禁止**修改 git config
+- **禁止** `--no-verify` 跳过 hook，除非用户明确要求
+- commit 失败（含 pre-commit hook 拒绝）时：修复问题后创建**新** commit，不要 amend 已失败的 commit
+- 远程 push 失败时：说明原因并给出下一步（如先 pull、检查权限），不要静默忽略
+
+### Windows 中文 Commit message
+
+在 Windows 上提交含中文的说明时，**优先使用 UTF-8 文件**传入 message，避免 PowerShell 管道编码导致乱码。
+
+1. 将说明写入 UTF-8 文件（无 BOM），例如 `.git/COMMIT_MSG_TMP` 或项目内临时文件
+2. 使用 `git commit -F <文件>` 或 `git commit --amend -F <文件>`
+3. 提交完成后删除临时 message 文件（若不在 `.gitignore` 中）
+
+```powershell
+# 示例：先写入 UTF-8 文件，再提交
+git commit -F .git/COMMIT_MSG_TMP
+```
+
+**不要**在 PowerShell 中用 here-string 管道直接传给 `git commit -F -`，除非已确认终端编码为 UTF-8。
+
+### Commit message 示例
+
+```
+fix: 集成测试使用 FilePath 参数并自动解析 SqlHost 连接目标
+
+test: 为 Get-SQLInstanceFile 增加 InstanceFile 别名覆盖
+```
+
+## GitHub 仓库 About
+
+推送到 GitHub 后，须根据**当前项目功能**填写或更新仓库 About（Description、Topics 等），使访客能快速了解项目用途。
+
+### 何时更新
+
+- 首次推送到 GitHub 远程仓库后
+- 项目功能、技术栈或定位发生变更并已推送后
+
+### 填写原则
+
+- **Description**：一两句话概括项目做什么、解决什么问题（参考 `README.md` 与 `docs/PRD.md`）
+- **Topics**：与实现相关的技术标签（如 `fastapi`、`python`、`game`），数量适中、避免无关标签
+- 文案使用中文或英文均可，须与仓库实际功能一致，不含敏感信息
+
+### 更新方式
+
+优先使用 `gh repo edit`：
+
+```bash
+gh repo edit --description "项目简介" --add-topic fastapi --add-topic python
+```
+
+功能变更后重新评估 Description 与 Topics，必要时移除过时标签、补充新标签。

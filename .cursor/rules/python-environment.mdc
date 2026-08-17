@@ -1,0 +1,36 @@
+---
+description: Python 环境：使用 uv 管理解释器、虚拟环境与依赖
+globs: **/*.py,pyproject.toml,uv.lock,requirements*.txt
+alwaysApply: false
+---
+
+# Python 环境（uv）
+
+项目中存在 Python 代码时，**统一使用 [uv](https://docs.astral.sh/uv/)** 管理解释器、虚拟环境与依赖；不使用 `pip`/`venv`/`poetry`/`conda` 作为默认方案（除非用户明确要求）。
+
+## 初始化与结构
+
+- 新建 Python 子项目：`uv init`（或在已有目录 `uv init --app` / `uv init --lib`）
+- 依赖与元数据写在 **`pyproject.toml`**；锁定版本用 **`uv.lock`**，两者一并入仓
+- 需要固定解释器版本时，使用 `.python-version` 或 `pyproject.toml` 中的 `requires-python`
+
+## 常用命令
+
+| 场景 | 命令 |
+|------|------|
+| 安装/同步依赖 | `uv sync` |
+| 添加依赖 | `uv add <package>` |
+| 添加开发依赖 | `uv add --dev <package>` |
+| 运行脚本/模块 | `uv run python script.py` 或 `uv run pytest` |
+| 进入虚拟环境 shell | `uv venv` 后激活，或直接用 `uv run` |
+
+## 约束
+
+- **不要**手写 `requirements.txt` 作为主依赖清单；若需导出（如 CI 镜像），用 `uv export` 生成
+- **不要**用 `pip install` 修改项目环境；依赖变更通过 `uv add` / `uv remove` 并更新 lockfile
+- 文档与脚本中的安装说明应写 `uv sync`、`uv run`，而非 `pip install -r requirements.txt`
+- 集成测试、脚本、CI 中执行 Python 时优先 `uv run`，保证与 lockfile 一致
+
+## 首次引入 Python
+
+初始化 uv 项目、补齐 `pyproject.toml` 与 `uv.lock`，并在 README 或 `docs/` 中说明 `uv` 安装方式与最小工作流（`uv sync` → `uv run …`）。

@@ -1,0 +1,34 @@
+---
+description: 发布验货：可重复构建脚本与产物泄漏检查
+globs: scripts/**,dist/**,**/release*,**/*.csproj,**/package.json,**/go.mod,**/pyproject.toml
+alwaysApply: false
+---
+
+# 发布验货
+
+## 原则
+
+- 发布必须通过**可重复脚本**（非手工步骤）
+- 产物不得包含：本地路径、用户名、机器名、PDB/source map 路径、未脱敏密钥
+- 发布前后记录产物 hash，便于核对
+
+## 按技术栈补充检查
+
+| 栈 | 典型检查 |
+|----|----------|
+| .NET 单文件 | PDB 路径泄漏、DebuggableAttribute、PE 时间戳 |
+| Node/Web | source map、`.env` 打进 bundle |
+| Go | `-ldflags -s -w`、embed 误带开发文件 |
+| Python | wheel 内绝对路径、开发依赖 |
+| 容器 | 镜像层含 `.git`、凭证、多余 dev 工具 |
+
+本项目（OpenSearch + FastAPI + React）：
+
+- 用 `scripts/3_pack_deploy.ps1` / `3_pack_deploy.sh` 打可重复部署包；核对旁路 `.sha256`
+- 包内不得含 `data/`、`.env`、`AGENTS.md`、`node_modules`、`.venv`、source map
+- 远程发版后跑 `scripts/7_smoke.sh`（或 `node scripts/4_remote.mjs deploy` 末尾自动冒烟）
+
+## 禁止
+
+- 将含真实环境信息的构建日志、截图提交到版本库
+- 跳过验货步骤直接宣称「可发布」
