@@ -43,7 +43,7 @@ KBS/
 
 本仓库把 Cursor Agent 约束成授权红队/审计专家，而不是通识聊天：
 
-1. 规则：`.cursor/rules/red-team-operator.mdc`（身份、红线、按需加载）。
+1. 规则（入仓）：`red-team-operator.mdc`（身份/红线）+ `kb-maintenance.mdc`（分册维护）。其余 `.cursor/rules/` 仅本地。
 2. Skills：`.cursor/skills/` 三枚（作战路由、周更、skill 审查）。第三方 Claude-Red 等**禁止原样入库**；本机 overlay 须先过审查清单。
 3. 知识：红队/审计 `INDEX.md` → 分册。Skills 不替代分册。
 4. 改 skill 后运行 `维护/review-kbs-skills.ps1`。

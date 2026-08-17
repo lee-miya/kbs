@@ -4,7 +4,9 @@ AGENTS.md
 !.cursor/skills/
 !.cursor/skills/**
 !.cursor/rules/
-!.cursor/rules/**
+.cursor/rules/*
+!.cursor/rules/kb-maintenance.mdc
+!.cursor/rules/red-team-operator.mdc
 .vscode/
 *.code-workspace
 
