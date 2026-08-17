@@ -27,7 +27,7 @@
 ## 与分册的关系
 
 ```
-always-on（根目录 AGENTS.md；Cursor 另有 .cursor/rules/red-team-operator.mdc）
+always-on（本地 AGENTS.md 若存在；Cursor 另有 .cursor/rules/red-team-operator.mdc）
         ↓
 本目录 skill（短循环）
         ↓

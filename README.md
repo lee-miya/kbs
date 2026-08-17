@@ -46,14 +46,13 @@ ln -s ../.agents/skills .claude/skills
 ln -s ../.agents/skills .reasonix/skills
 ```
 
-Agent 侧的加载顺序与红线见 [`AGENTS.md`](AGENTS.md)，不必写进本文件。
+公开入口是两库 `INDEX.md` 与 [`.agents/skills/`](.agents/skills/README.md)。本机可另放 `AGENTS.md`（不入库）。
 
 ## 目录一览
 
 ```
 KBS/
 ├── README.md                 ← 你在这里
-├── AGENTS.md                 ← Agent 作战指南
 ├── .agents/skills/           ← 项目级 Agent Skills
 ├── 代码审计知识库/            ← 语言分册 + INDEX 速查
 ├── 红队渗透知识库/            ← INDEX 作战入口 + 00–12 分册

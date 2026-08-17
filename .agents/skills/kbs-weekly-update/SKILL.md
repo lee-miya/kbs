@@ -40,4 +40,4 @@ description: >-
 ## 完成后
 
 - 路线图勾选；关注源可追加高产仓库。
-- `git status` 排除 `AGENTS.local.md`、`.firecrawl/`、个人笔记；按仓库约定提交推送。
+- `git status` 排除 `AGENTS.md`、`AGENTS.local.md`、`.firecrawl/`、个人笔记；按仓库约定提交推送。
