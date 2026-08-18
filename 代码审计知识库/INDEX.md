@@ -1,17 +1,17 @@
 # 知识库总索引与高频速查表
 
 > **审计库加载入口**（人读导航见 [`README.md`](README.md)）。新对话先读本文件，再按需打开分册。  
-> 最近更新：2026-08-15（v1.10：晚间增量 — Nabi AI deprecated/Vault `+`；Gunra/Fortinet；Ivanti EPM）
+> 最近更新：2026-08-18（v1.11：Wiz Red Agent / Autofix；Ray KEV；GHA `run:` 注入；CACHE 槽）
 
 ## 一、分册索引
 
 | 分册文件 | 适用场景 | 核心内容 | 更新 |
 |---|---|---|---|
-| [通用审计方法论.md](通用审计方法论.md) | 所有项目开工前必读 | 审计三路径、patch diffing、fail-open、**AI 辅助审计**；**弃用仍接线** | 2026-08-15 |
-| [综合分册_AI漏洞挖掘与态势.md](综合分册_AI漏洞挖掘与态势.md) | AI 挖洞 / 审 AI 应用 / **案例精析** | 工具方法论、Agent 攻击面、第五节案例提炼；**Nabi AI 拾遗** | 2026-08-15 |
+| [通用审计方法论.md](通用审计方法论.md) | 所有项目开工前必读 | 审计三路径、patch diffing、fail-open、**AI 辅助审计**；**弃用仍接线**；**CI `run:` 注入** | 2026-08-18 |
+| [综合分册_AI漏洞挖掘与态势.md](综合分册_AI漏洞挖掘与态势.md) | AI 挖洞 / 审 AI 应用 / **案例精析** | 工具方法论、Agent 攻击面、第五节案例提炼；**Wiz Red Agent** | 2026-08-18 |
 | [PHP_代码审计.md](PHP_代码审计.md) | PHP Web（CMS、论坛、商城） | SQLi、上传、包含、反序列化、弱类型；CI4 时效 | 2026-08-09 |
 | [Java_代码审计.md](Java_代码审计.md) | Java Web（Spring/Struts/Shiro） | 反序列化、表达式/SSTI、内存马；Tomcat fail-open；**JWT 验签**；**cleanPath 不正交** | 2026-08-15 |
-| [Python_代码审计.md](Python_代码审计.md) | Python Web 与脚本 | pickle/yaml、SSTI、命令执行；**Langflow 执行面** | 2026-08-09 |
+| [Python_代码审计.md](Python_代码审计.md) | Python Web 与脚本 | pickle/yaml、SSTI、命令执行；**Langflow 执行面**；**GHA / Ray Dashboard** | 2026-08-18 |
 | [JavaScript_Node_代码审计.md](JavaScript_Node_代码审计.md) | Node.js 后端 | 原型链污染、命令注入、NoSQL、供应链；**CRLF→desync**；**dangling-byte**；**Server Action / Vault `+`** | 2026-08-15 |
 | [Go_代码审计.md](Go_代码审计.md) | Go 服务与工具 | 命令执行、SQL、SSRF、路径、并发 | 2026-07-31 |
 | [C_CPP_内存破坏与Fuzzing.md](C_CPP_内存破坏与Fuzzing.md) | C/C++ 二进制 | 内存破坏、AFL++、崩溃到 PoC；分层 harness 启示 | 2026-08-12 |

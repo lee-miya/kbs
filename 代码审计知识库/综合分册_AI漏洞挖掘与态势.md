@@ -8,7 +8,7 @@
 > 五、**AI 审计案例提炼**（周更硬性：拆管线/提示词/验证闭环 → 可迁移纪律）。
 > **时效规则**：条目按批次排列，标注时间窗；单一来源未经厂商证实的条目标注"待核实"。
 > **入库红线**：仅公开研究；域名/IP/凭证/IOC/可直接复用载荷不入库。
-> 版本：v1.7（2026-08-15 晚间：Nabi AI 拾遗；Gunra/Fortinet 与 Ivanti EPM 跟踪）
+> 版本：v1.8（2026-08-18：Wiz Red Agent × Autofix；Ray KEV；CACHE 槽泄 key）
 
 ---
 
@@ -111,7 +111,7 @@
 
 ---
 
-## 四、CTF 拾遗（2026-07 批次 + 2026-08-12 / 08-15 追加，晚间补 Nabi AI）
+## 四、CTF 拾遗（2026-07 批次 + 2026-08-12 / 08-15 / 08-18 追加）
 
 - **Crypto**：低指数攻击（e 过小开方/广播攻击）与密钥流重用（异或消 keystream）仍是送分点也是失分点；
 - **Web 通用**：JWT 三件套（alg=none、弱密钥爆破、HS/RS 混淆）出场率依旧最高；
@@ -160,6 +160,15 @@
 - **识别与自测**：授权环境对比「完整走私」与「少 1 字节」时第二响应何时出现；禁止对未授权目标做体积扫描
 - **局限**：依赖 method-agnostic 后端等部署组合；不写完整 RQP 链
 - **链接**：https://portswigger.net/research/http-terminator
+
+### 2026-08-18 · Python 3.12+ CACHE 槽泄露循环 XOR key + frozen `os`（来源：看雪 KCTF 第二题）
+
+- **技巧**：3.12+ 字节码指令后 CACHE 为 0x00；短循环 XOR 下密文对应字节 = key。逻辑可藏在重编解释器的 frozen `os`（启动必 import），entry pyc 可以是 `sys.exit(0)` 空壳
+- **适用面**：Reverse | PyInstaller 供应链初析
+- **迁移价值**：审计/逆向危险特征——对比官方 `python3xx.dll` 体积与签名；dump frozen 表再看 entry
+- **识别与自测**：onefile；主 DLL 无 Authenticode 而 `.pyd` 有签；frozen 表尾部出现 `input`/`xor`/`co_code`
+- **局限**：赛题特化；不入库完整 solver
+- **链接**：https://bbs.kanxue.com/thread-292437.htm
 
 ### 2026-08-15 · deprecated 仍接线 + Vault `+` 单段通配（来源：UIUCTF 2026 · Nabi AI）
 
@@ -300,23 +309,42 @@
   - [ ] 每条成立结论强制 cascade：邻近解析器、同类配置、邻近分支
 - **链接**：https://portswigger.net/research/http-terminator · https://github.com/PortSwigger/http-terminator · https://portswigger.net/blog/can-ai-invent-new-attack-techniques-new-research-from-james-kettle-and-portswigger-research
 
+### 2026-08-18 · Wiz Red Agent：Autofix 引入洞 + Agent 按执行错误改 payload（Snowflake 公开仓）
+
+- **场景**：公开 GitHub 仓 CI（`snowflakedb/snowflake-connector-net` 的 `jira_issue.yml`）；HackerOne 授权研究。2026-06-18 合并、06-23 打穿、**08-17 公开**。
+- **管线与分工**：
+  - Copilot Autofix：共著 PR，把安全的 `env:` + `jq --arg` 改成 `run:` 内直接展开议题标题
+  - GitHub AI 安全评审：同 PR 未标危
+  - Wiz **Red Agent**（CI/CD 能力）：扫 org 工作流 → 标 `run:` 内不可信输入 → 构造 issue 标题 → **读 runner 语法错误** → 改闭合方式 → 带出 runner 环境中的 Jira token
+  - 人：HackerOne 披露、删除 PoC 数据；Snowflake 同日修 + 次日轮换密钥 + 审计日志证明窗口内无第三方
+- **提示词 / 任务拆解**：可复述纪律——① 扫「`run:` 里是否出现 `${{ github.event.* }}`」；② 安全门 `if:` 在 issues 事件上 `pull_request` 恒为 null 是否变成永真；③ 验证必须进真实 runner（或等价沙箱），口头「可能注入」不算
+- **工具与上下文**：GitHub Actions 日志 + 带外回调；Agent 把 **bash 报错当反馈**（`#` 吃掉 `$(...)` 闭括号 → 改用 `; echo '`）
+- **验证闭环**：OOB 收到 token 才算 A 级；厂商用审计日志证明窗口内无其他访问。发现窗口 5 天。
+- **成果与局限**：模式是 CI 脚本注入，不是应用 RCE；08-17 勘误称 Autofix 是共著/评审角色，是否整段由 AI 生成「不清楚」——不影响「AI 评审放行 + 安全模式被拆」这条课。不写完整 issue 标题载荷。
+- **可迁移纪律**：
+  - [ ] AI 改 CI/脚本必须跑与人码相同的 SAST；禁止「Autofix 过了 = 安全」
+  - [ ] 不可信输入只进 `env:`，shell 用 `jq --arg` / `printf %q`，禁止 `${{ }}` 进 `run:`
+  - [ ] 发现 Agent 要把**执行失败**当信号继续改，而不是把第一次 400/EOF 当「不可打」
+  - [ ] CI 密钥按「数日即可能被扫」设寿命；修洞同时轮换
+- **链接**：https://www.wiz.io/blog/red-agent-snowflake-copilot-cicd-bug
+
 ---
 
-## 下期跟踪清单（2026-08-16 起，每周核查）
+## 下期跟踪清单（2026-08-19 起，每周核查）
 
-1. ~~Metabase~~ → **已升格** CVE-2026-72898 / KEV；本周公开多起自托管失陷 → 未修按失陷假设（轮换连接库凭据）；
-2. AD CS CVE-2026-62818：仍缺公开武器化细节；域周加厚 ESC 与补丁联动；
+1. ~~Metabase~~ → **已升格** CVE-2026-72898 / KEV；未修按失陷假设；
+2. AD CS CVE-2026-62818：仍缺公开武器化细节；
 3. CVE-2026-42533（NGINX）公开 PoC 与 KEV 动向；
 4. Check Point CVE-2026-18574 在野确认；
 5. SharePoint 本月 PT 新 RCE（66808 等）武器化进度；
-6. ~~HTTP Terminator~~ → **已升格精析**；继续盯录像/新类洞披露；IronCurtain / FLAWED 复现笔记；
-7. **新公开 AI 代码审计案例** → 写入第五节（本周已扫 evilsocket/audit，作工具观察不重复当主条）；
+6. ~~HTTP Terminator~~ → **已升格精析**；IronCurtain / FLAWED 复现笔记；
+7. **新公开 AI 代码审计案例** → 写入第五节（本周主条 Wiz Red Agent；GlobaLeaks 7 月底不重复）；
 8. Azure Key Vault CVE-2026-62825 官方公告核实；
-9. TeamCity / Langflow / LoadMaster / **Cisco ASA 20349** / **NetScaler 8452** 补丁后暴露面残留；
-10. FortiSandbox CVE-2026-39808 暴露面是否进入护网常见指纹；
-11. PAN GP 0297/0298 是否出现在野/入 KEV；**Ivanti EPM 已入库**；国产 VPN **门户**通告继续滚；
-12. ~~UIUCTF Nabi AI~~ → **已提炼**（deprecated Server Action + Vault `+`）；其余赛题 / **官方** WP 仍观察；
-13. Gunra / Fortinet 55591+24472 暴露面与失陷假设是否进入护网常见指纹。
+9. TeamCity / Langflow / LoadMaster / **Cisco ASA 20349** / **NetScaler 8452** / **Ray 62593** 补丁后残留（Ray 还要查是否真开了 token 认证）；
+10. FortiSandbox CVE-2026-39808；**CVE-2026-71407** 显式代理组合是否少见到可忽略；
+11. PAN GP 0297/0298 是否入 KEV；国产 VPN **门户**通告继续滚；
+12. UIUCTF **官方** WP 仍观察；HITCON 08-21；
+13. Gunra / Fortinet 55591+24472 暴露面。
 
 ---
 

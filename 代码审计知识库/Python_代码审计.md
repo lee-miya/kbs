@@ -1,7 +1,7 @@
 # Python 代码审计分册
 
 > 适用：Python Web（Flask/Django/FastAPI）、脚本与工具。
-> 更新：2026-08-09（v1.2：Langflow 执行面时效）
+> 更新：2026-08-18（v1.3：GHA 注入 + Ray Dashboard + CACHE 槽）
 
 ---
 
@@ -83,6 +83,29 @@ bandit（官方安全扫描）、Semgrep python 规则集、CodeQL、pip-audit�
 - **审计要点**：① 区分「业务查询 SQL」与「应用元数据库」写入路径；② 一切拼 SQL 的未认证路由标 P0；③ 密钥/连接串与应用库隔离、轮换。
 - **自测**：画出「未认证输入 → 应用库」数据流，确认参数化与鉴权缺一不可。
 - **链接**：https://www.metabase.com/blog/security-update · https://github.com/metabase/metabase/security/advisories/GHSA-vwf4-m7j8-wcjf
+
+### 2026-08-18 · GitHub Actions `run:` 内插议题标题（Wiz / Snowflake 启示）
+
+- **危险特征**：YAML `run: |` 里出现 `${{ github.event.issue.title }}` 等；`echo '...'` + 事后 `sed`；`if:` 引用了该 event 不存在的 `pull_request` 字段。
+- **利用条件**：工作流对 `issues: opened` 等公开事件触发；runner 含密钥。
+- **审计要点**：Python 仓同样要审 `.github/workflows`；与「应用代码无 eval」无关。安全模式是 `env:` + `jq --arg`，不是「先展开再转义」。
+- **自测**：列出所有 `${{ github.event` 出现在 `run:` 的工作流；标出是否可被外部 issue/PR 触发。
+- **链接**：https://www.wiz.io/blog/red-agent-snowflake-copilot-cicd-bug
+
+### 2026-08-18 · Ray Dashboard：UA 黑名单 + 无认证 Jobs API（CVE-2025-62593）
+
+- **危险特征**：本地 HTTP 控制面用 `User-Agent` 前缀（如 `Mozilla`）当「禁浏览器」；Jobs/提交任务 API 无认证；默认绑非回环或开发者会开 Dashboard。
+- **利用条件**：Firefox/Safari 可改 fetch UA；配合 DNS rebinding；Chrome 实现偏差反而常打不穿。
+- **审计要点**：① 浏览器隔离不能靠可伪造头；② 开发期 Dashboard 也要认证（token 默认关不算修完）；③ 同类：Jupyter / MLFlow / 未认证 metrics UI。
+- **自测**：标出「只认 UA / 只认 Origin 不认认证」的管理 API。
+- **链接**：https://github.com/ray-project/ray/security/advisories/GHSA-q279-jhrf-cc6v
+
+### 2026-08-18 · 冻结解释器 CACHE 槽泄 XOR key（KCTF 第二题启示）
+
+- **危险特征**：PyInstaller 空壳 entry + 重编 `python3xx.dll`；frozen `os` 尾部业务逻辑；3.12+ `co_code` 含 CACHE 零槽。
+- **审计要点**：供应链审冻结解释器时 diff 官方 DLL；不要只反编译 main.pyc。
+- **自测**：对示例 onefile 列出 frozen 模块名，确认 entry 是否为空壳。
+- **链接**：https://bbs.kanxue.com/thread-292437.htm
 
 （下期继续：其他 Python Agent 框架同类模式对照。）
 

@@ -13,6 +13,12 @@ burp 被动爬全站后筛选 XHR；waybackurls + gau 挖历史接口
 
 GraphQL 专项：开 introspection 直接拉全 schema；没开就 fuzz 字段名；重点关注嵌套查询 DoS 与越权字段。
 
+资金/账本类 GraphQL（漏测轴，2026-08-18 对照第三方 skill 后改写，禁止照搬原文）：
+
+- 资金类 mutation（转账/调账/出金）是否按**账户归属**授权，而不是「登录即可调任意 `accountId`/`ledgerId`」
+- 金额用浮点/字符串时的小数精度与舍入方向；幂等键（`Idempotency-Key` / `clientMutationId`）能否重放同一笔或换金额重放
+- KYC/PII、管理员覆盖字段是否出现在普通用户可选的嵌套 selection 里（字段级授权，不是只挡顶层 mutation 名）
+
 ## 2. 认证与令牌攻击
 
 ### JWT 攻击清单

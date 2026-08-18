@@ -86,6 +86,7 @@
 
 | 期次 | 文件 | 亮点 |
 | --- | --- | --- |
+| 2026-08-18 | `2026-08-18_每周渗透情报.md` | **KEV：Ray 62593**（DNS rebinding+UA）；FortiOS **71407** WAD；AI：**Wiz Red Agent × Autofix**；CTF：CACHE 槽泄 XOR key；钓鱼：本机 Dashboard 水坑；skill：**offensive-claude v1.9**；免杀无达标 |
 | 2026-08-15 | `2026-08-15_每周渗透情报.md` | 无新 KEV；**PAN GP 0297/0298**；**NetScaler 8452** 升格；JumpServer 7-29；AI：HTTP Terminator；免杀：AMSI RPC + **签名阅读器 DLL 劫持**；CTF：cleanPath/`dangling-byte`/**Nabi AI**；**晚间**：Gunra→Fortinet Nday、Ivanti EPM、PhaaS 双模 |
 | 2026-08-12 | `2026-08-12_每周渗透情报.md` | PT：AFD 在野 0day；KEV：LoadMaster + **Cisco 20349 + Metabase 72898**；SharePoint 勒索+JWT；AI：IronCurtain + **FLAWED**；CTF：KCTF/CRLF/**Fury**；免杀 06-02；钓鱼 ConsentFix；边界 09-03 |
 | 2026-08-09 | `2026-08-09_每周渗透情报.md` | KEV：Langflow/Tomcat/N-central/TeamCity；AI 案例：NOVA/PRWeaver/CodePecker；08-12 PT 待核验 |
