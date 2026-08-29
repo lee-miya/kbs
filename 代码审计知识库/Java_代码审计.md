@@ -1,7 +1,7 @@
 # Java 代码审计分册
 
 > 适用：Java Web（Servlet/Spring/Struts/Shiro 体系）及中间件。
-> 更新：2026-08-15（v1.3：cleanPath 双条件不正交时效）
+> 更新：2026-08-29（v1.4：Nacos @Secured 作用域错配）
 
 ---
 
@@ -137,6 +137,14 @@ CodeQL（Java 规则成熟，适合批量 sink 回溯）、tabby（国产 Java �
 - **审计要点**：① 路径安全谓词必须作用在**同一**规范化结果上；② 禁止「contains 穿越符」与「clean 后再 contains」混用当正交；③ 搜 `cleanPath` / `normalize` / `FileSystemResource`。
 - **自测锚点**：列出项目中所有「防 `..`」检查，标出规范化发生在检查前还是检查后。
 - **局限**：赛题 WP 复扫升格；不写完整穿越载荷。
+
+### 2026-08-29 · 鉴权注解缺枚举 = 过滤器不认领（Nacos QVD-2026-59388）
+
+- **危险特征**：`@Secured`（或等价元数据）声明了「要鉴权」但**缺少** `apiType` / 资源组 / 过滤器匹配键；Admin 过滤器与 OpenAPI 过滤器按枚举分流，缺键则谁也不拦。
+- **利用条件**：创建用户/角色类接口网络可达；3.0.0–3.2.3 的 `UserControllerV3.createUser` 即此课；升 3.2.4。
+- **审计要点**：① 列出一切鉴权注解并核对过滤器 `isMatchFilter` 条件是否覆盖；② 「写了 @Secured」≠ 已鉴权；③ 同类：Spring Security 多个 FilterChain 漏挂。
+- **自测锚点**：任选一处创建管理员接口，标出注解字段是否与实际 Filter 匹配键一致。
+- **链接**：https://github.com/alibaba/nacos/releases/tag/3.2.4
 
 ## 14. 参考资料
 

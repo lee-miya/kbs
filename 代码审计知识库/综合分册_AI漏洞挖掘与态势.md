@@ -111,7 +111,7 @@
 
 ---
 
-## 四、CTF 拾遗（2026-07 批次 + 2026-08-12 / 08-15 / 08-18 追加）
+## 四、CTF 拾遗（2026-07 批次 + 2026-08-12 / 08-15 / 08-18 / 08-29 追加）
 
 - **Crypto**：低指数攻击（e 过小开方/广播攻击）与密钥流重用（异或消 keystream）仍是送分点也是失分点；
 - **Web 通用**：JWT 三件套（alg=none、弱密钥爆破、HS/RS 混淆）出场率依旧最高；
@@ -178,6 +178,15 @@
 - **识别与自测**：搜 `sourceMappingURL` / `createServerReference` / `path ".../+"`；对比类型声明与服务端解构
 - **局限**：非官方 WP（战队/站点复盘）；赛题把三服务拆开，生产可能同构也可能更乱
 - **链接**：https://cybersecurityelite.com/ctf-writeups/uiuctf-2026-web-nabi-ai-writeup/
+
+### 2026-08-29 · 字段寻址允许 `index == len`（看雪 KCTF 第十题）
+
+- **技巧**：自定义对象字段访问把长度检查写成「下标可以等于 len」，一次 qword one-past-end；再靠对象编码把写面扩成 arena 连续读写，最终覆 tcache `fd`。
+- **适用面**：Pwn | C++ 解释器 / DSL
+- **迁移价值**：**审计危险特征**——自管堆上的字段/槽位寻址禁止 `== length` 当合法；解释器对象优先查 off-by-one
+- **识别与自测**：搜字段 getter 的 `index <= len` / `index == size`；对照 arena 后方空闲 chunk
+- **局限**：赛题 libc-2.27 + `__free_hook` 特化；不入库完整利用链
+- **链接**：https://bbs.kanxue.com/thread-292738.htm
 
 ---
 
@@ -328,21 +337,38 @@
   - [ ] CI 密钥按「数日即可能被扫」设寿命；修洞同时轮换
 - **链接**：https://www.wiz.io/blog/red-agent-snowflake-copilot-cicd-bug
 
+### 2026-08-29 · BugHunter：已披露报告「内容核实」后再补 hunt 轴（elementalsouls）
+
+- **场景**：开源赏金向 hunt skill 库；08-24 对 433 份 HackerOne **已披露**摘要做内容核实，再平行多 Agent 把真实绕过力学补进既有 skill（SSTI 短字段、SSRF 过滤绕过、PortSwigger/CVE 缺口）。
+- **管线与分工**：
+  - 接地层：只收**内容核实过的**报告摘要（禁止标题党 CVE 列表当训练）
+  - 平行研究 Agent：按剩余 skill 分片，对照分册已有轴找缺口
+  - 人：决定哪些力学改写成 KBS 体例；**禁止**把第三方 `SKILL.md` 入库
+- **提示词 / 任务拆解**：可复述步骤——① 列出本库已有漏测轴；② 对每份核实摘要只抽「过滤怎么绕、长度限制、重定向/再绑定」；③ 输出 1～3 条对照项，不是整份 skill。
+- **工具与上下文**：公开披露报告 + 本仓库分册；无客户代码。
+- **验证闭环**：摘要必须能回原文；写进分册的条目要能对应「危险特征 / 自测」，否则只进周报 3.9 观察。
+- **成果与局限**：产出是漏测轴加厚，不是新 CVE 管线；库内含 `scripts/` → 本仓库审查结论仍是**拒绝 overlay**。
+- **可迁移纪律**：
+  - [ ] 用 AI 扩 hunt 清单时先接地已披露力学，再生成探测思路
+  - [ ] 短字段 / 过滤绕过单独成轴，不要假设能贴长 payload
+  - [ ] 第三方 skill 只对照缺口，全文不入库
+- **链接**：https://github.com/elementalsouls/Claude-BugHunter（commits #70–#75，08-24）
+
 ---
 
-## 下期跟踪清单（2026-08-19 起，每周核查）
+## 下期跟踪清单（2026-08-30 起，每周核查）
 
 1. ~~Metabase~~ → **已升格** CVE-2026-72898 / KEV；未修按失陷假设；
 2. AD CS CVE-2026-62818：仍缺公开武器化细节；
 3. CVE-2026-42533（NGINX）公开 PoC 与 KEV 动向；
 4. Check Point CVE-2026-18574 在野确认；
-5. SharePoint 本月 PT 新 RCE（66808 等）武器化进度；
+5. SharePoint 本月 PT 新 RCE（66808 等）武器化进度；**55040 已入 KEV**；
 6. ~~HTTP Terminator~~ → **已升格精析**；IronCurtain / FLAWED 复现笔记；
-7. **新公开 AI 代码审计案例** → 写入第五节（本周主条 Wiz Red Agent；GlobaLeaks 7 月底不重复）；
+7. **新公开 AI 代码审计案例** → 写入第五节（本周主条 BugHunter 接地；Taskflow Web 文为 3 月旧文）；
 8. Azure Key Vault CVE-2026-62825 官方公告核实；
-9. TeamCity / Langflow / LoadMaster / **Cisco ASA 20349** / **NetScaler 8452** / **Ray 62593** 补丁后残留（Ray 还要查是否真开了 token 认证）；
-10. FortiSandbox CVE-2026-39808；**CVE-2026-71407** 显式代理组合是否少见到可忽略；
-11. PAN GP 0297/0298 是否入 KEV；国产 VPN **门户**通告继续滚；
+9. **IKE 33824 / vCenter 59310 / MLflow 64849 / GitLab 19478 / Gitea / TrueConf / Zimbra / Nacos** 补丁后残留；Ray 是否真开 token；
+10. FortiSandbox CVE-2026-39808；**CVE-2026-71407** 显式代理组合是否少见到可忽略；FortiManager **70468** 是否出现在野；
+11. PAN GP 0297/0298 是否入 KEV；国产 VPN **门户**通告继续滚；GitLab 19478 是否入 KEV；
 12. UIUCTF **官方** WP 仍观察；HITCON 08-21；
 13. Gunra / Fortinet 55591+24472 暴露面。
 

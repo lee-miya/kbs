@@ -74,7 +74,7 @@ AFL++（插桩 fuzzing）、libFuzzer/honggfuzz、ASAN/UBSAN/MSAN、GDB+pwndbg/g
 
 ---
 
-## 时效条目（2026-07 批次 + 2026-08-12）
+## 时效条目（2026-07 批次 + 2026-08-12 / 08-29）
 
 ### 基础设施组件 C 审计案例两则（本期重点）
 
@@ -106,4 +106,12 @@ AFL++（插桩 fuzzing）、libFuzzer/honggfuzz、ASAN/UBSAN/MSAN、GDB+pwndbg/g
 - **审计要点**：单函数隔离 fuzz → 多组件 harness → 必要时全系统/VM；整数截断/分配路径优先用 sanitizer 复现。
 - **自测**：任选一处长度计算与写入分离的代码，写出最小单函数 harness 思路（不含完整利用）。
 
-> 来源：F5 公告 K000162097 与 Stan Shaw/Zhenpeng Lin 研究、friday-go.icu 攻击链分析、奇安信 CERT 通告、爱坤sec Redis PoC 分析、Rapid7/ZDI 补丁日评述、mito753/Kernel-Exploit-Dojo、APNIC IronCurtain（2026-08-11）。
+### 2026-08-29 · 字段下标允许 `index == len`（看雪 KCTF 第十题启示）
+
+- **危险特征**：自管 arena / 对象字段 getter 把边界写成 `index <= length` 或 `index == len` 仍可读写下标；随后可用对象编码把一次越界扩成连续 qword。
+- **审计要点**：槽位寻址必须 `index < length`；解释器/DSL 对象与 tcache/空闲链表相邻时，one-past-end 即堆元数据面。
+- **自测**：列出项目中所有「按下标取字段」的检查，标出是否包含等于 length 的分支。
+- **局限**：赛题特化到旧 libc hook；不写完整利用。
+- **链接**：https://bbs.kanxue.com/thread-292738.htm
+
+> 来源：F5 公告 K000162097 与 Stan Shaw/Zhenpeng Lin 研究、friday-go.icu 攻击链分析、奇安信 CERT 通告、爱坤sec Redis PoC 分析、Rapid7/ZDI 补丁日评述、mito753/Kernel-Exploit-Dojo、APNIC IronCurtain（2026-08-11）、看雪 KCTF 第十题 WP（2026-08）。

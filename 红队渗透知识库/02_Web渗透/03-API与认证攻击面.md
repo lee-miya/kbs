@@ -13,6 +13,17 @@ burp 被动爬全站后筛选 XHR；waybackurls + gau 挖历史接口
 
 GraphQL 专项：开 introspection 直接拉全 schema；没开就 fuzz 字段名；重点关注嵌套查询 DoS 与越权字段。
 
+版本过滤 /「未来字段」回落（2026-08-29，GitLab CVE-2026-19478 启示；禁止完整查询体）：
+
+- 滚动发布用的指令（如「该字段尚未在本版本存在」）若把**缺失字段**合成无 resolver 的 Field，运行时可能把字段名当方法名打到后端对象
+- 审计/打点：schema 里出现自定义 version-filter 指令时，问「未知字段是报错、返回 null，还是隐式调用？」；补丁形态应是显式空 resolver，不是默认方法分发
+- 自建 GitLab：看 `/api/graphql` 是否未认证可达；升 19.2.4 / 19.1.6 / 19.0.8 / 18.11.11
+
+长度受限字段上的 SSTI（2026-08-29 对照 BugHunter 已披露报告，禁止照搬 payload）：
+
+- 短输入框（昵称、显示名、webhook 路径片段）不要只测长 polyglot；优先引擎探测串与分片拼接
+- 过滤型 SSRF：除直连内网 IP 外，测重定向、再绑定、只验原始 URL 不验对端套接字（对照 MLflow 64849）
+
 资金/账本类 GraphQL（漏测轴，2026-08-18 对照第三方 skill 后改写，禁止照搬原文）：
 
 - 资金类 mutation（转账/调账/出金）是否按**账户归属**授权，而不是「登录即可调任意 `accountId`/`ledgerId`」

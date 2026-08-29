@@ -1,7 +1,7 @@
 # Python 代码审计分册
 
 > 适用：Python Web（Flask/Django/FastAPI）、脚本与工具。
-> 更新：2026-08-18（v1.3：GHA 注入 + Ray Dashboard + CACHE 槽）
+> 更新：2026-08-29（v1.4：MLflow webhook SSRF 不完整修复）
 
 ---
 
@@ -106,6 +106,14 @@ bandit（官方安全扫描）、Semgrep python 规则集、CodeQL、pip-audit�
 - **审计要点**：供应链审冻结解释器时 diff 官方 DLL；不要只反编译 main.pyc。
 - **自测**：对示例 onefile 列出 frozen 模块名，确认 entry 是否为空壳。
 - **链接**：https://bbs.kanxue.com/thread-292437.htm
+
+### 2026-08-29 · SSRF 守卫必须钉对端套接字（MLflow CVE-2026-64849）
+
+- **危险特征**：出站前只对**原始 URL** 做 DNS/公网 IP 检查；随后 `allow_redirects` 跟随 302 且不重新校验；测试接口把上游 **status + body** 回显给调用方。
+- **利用条件**：默认 Tracking Server 无认证；`POST /api/2.0/mlflow/webhooks/{id}/test` 可达；`<3.15.0`。
+- **审计要点**：① 不完整修复 = 只挡直连内网、不挡跳转/再绑定；② 正确形态是 connect 后校验**已连接对端 IP**（MLflow `SSRFProtectedHTTPAdapter`）；③ 回显 body 的「测试投递」口按全读 SSRF 审。
+- **自测**：标出项目中所有「先校验 URL 再 requests.get」且跟随重定向的函数。
+- **链接**：https://github.com/mlflow/mlflow/security/advisories/GHSA-7gwp-5pfp-969j
 
 （下期继续：其他 Python Agent 框架同类模式对照。）
 

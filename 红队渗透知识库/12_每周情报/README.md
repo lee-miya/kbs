@@ -86,6 +86,7 @@
 
 | 期次 | 文件 | 亮点 |
 | --- | --- | --- |
+| 2026-08-29 | `2026-08-29_每周渗透情报.md` | **KEV 扎堆**：IKE **33824**、vCenter **59310**、MLflow **64849**、TrueConf、Zimbra、Gitea、**NetScaler 8452 升 KEV**；GitLab **19478** GraphQL；Nacos 注解错配；CTF：KCTF 十题 one-past-end；skill：**Claude-Red v0.3.0** |
 | 2026-08-18 | `2026-08-18_每周渗透情报.md` | **KEV：Ray 62593**（DNS rebinding+UA）；FortiOS **71407** WAD；AI：**Wiz Red Agent × Autofix**；CTF：CACHE 槽泄 XOR key；钓鱼：本机 Dashboard 水坑；skill：**offensive-claude v1.9**；免杀无达标 |
 | 2026-08-15 | `2026-08-15_每周渗透情报.md` | 无新 KEV；**PAN GP 0297/0298**；**NetScaler 8452** 升格；JumpServer 7-29；AI：HTTP Terminator；免杀：AMSI RPC + **签名阅读器 DLL 劫持**；CTF：cleanPath/`dangling-byte`/**Nabi AI**；**晚间**：Gunra→Fortinet Nday、Ivanti EPM、PhaaS 双模 |
 | 2026-08-12 | `2026-08-12_每周渗透情报.md` | PT：AFD 在野 0day；KEV：LoadMaster + **Cisco 20349 + Metabase 72898**；SharePoint 勒索+JWT；AI：IronCurtain + **FLAWED**；CTF：KCTF/CRLF/**Fury**；免杀 06-02；钓鱼 ConsentFix；边界 09-03 |
