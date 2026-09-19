@@ -3,11 +3,8 @@ AGENTS.md
 AGENTS.local.md
 REASONIX.local.md
 CLAUDE.local.md
-.cursor/*
-!.cursor/rules/
-.cursor/rules/*
-!.cursor/rules/kb-maintenance.mdc
-!.cursor/rules/red-team-operator.mdc
+.agents/
+.cursor/
 .vscode/
 *.code-workspace
 

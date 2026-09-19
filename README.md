@@ -26,13 +26,21 @@ git clone <本仓库 URL>
 cd KBS
 ```
 
-人读：从本文件进入两库 `INDEX.md` 即可。
+人读：从本文件进入两库 `INDEX.md` 即可。公开入口是两库 `INDEX.md`，不是编辑器或 Agent 配置。
 
-若用 AI Agent（Cursor、Kimi Code、Reasonix、Claude Code、Codex 等）打开本仓库：
+### 本机文件（不入库）
 
-1. 把仓库根目录作为工作区。
-2. 兼容 [Agent Skills](https://agentskills.io/skill.md) 的工具会自动加载 [`.agents/skills/`](.agents/skills/README.md)。
-3. Cursor、Kimi Code 会直接扫描该目录；Claude Code、Reasonix 若未扫描到，在仓库根执行一次适配：
+下列路径只存在于本机工作区，**不纳入版本控制**，克隆后不会出现在仓库里：
+
+| 路径 | 用途 |
+| --- | --- |
+| `AGENTS.md` / `AGENTS.local.md` | 本机 Agent 作战指南与细进度 |
+| `.agents/` | 本机 Agent Skills |
+| `.cursor/` | Cursor 规则与编辑器配置 |
+| `代码审计知识库_Ext/` / `红队渗透知识库_Ext/` | 周更搜集原料，只改写进主库 |
+| `个人笔记/` | 未脱敏沉淀 |
+
+若本机已有 `.agents/skills/`，兼容 [Agent Skills](https://agentskills.io/skill.md) 的工具会扫描该目录。Claude Code、Reasonix 等若走品牌目录，可在仓库根执行一次适配（生成的 junction 同样不入库）：
 
 ```powershell
 powershell -NoProfile -File 维护/install-agent-skills.ps1
@@ -46,14 +54,11 @@ ln -s ../.agents/skills .claude/skills
 ln -s ../.agents/skills .reasonix/skills
 ```
 
-公开入口是两库 `INDEX.md` 与 [`.agents/skills/`](.agents/skills/README.md)。本机可另放 `AGENTS.md`（不入库）。
-
 ## 目录一览
 
 ```
 KBS/
 ├── README.md                 ← 你在这里
-├── .agents/skills/           ← 项目级 Agent Skills
 ├── 代码审计知识库/            ← 语言分册 + INDEX 速查
 ├── 红队渗透知识库/            ← INDEX 作战入口 + 00–12 分册
 └── 维护/                     ← SOP、关注源、路线图、体例
@@ -66,7 +71,7 @@ KBS/
 3. 临场：红队 `INDEX.md` → 对应分册；审计 `INDEX` 高频速查表。
 4. 追新：每周一看红队 `12_每周情报`；审计新模式在各分册「时效条目」。
 
-分册写法见 [`维护/文档体例约定.md`](维护/文档体例约定.md)。
+分册写法见 [`维护/文档体例约定.md`](维护/文档体例约定.md)。提交前过 [`维护/隐私与脱敏排查清单.md`](维护/隐私与脱敏排查清单.md)。
 
 ## 每周更新
 

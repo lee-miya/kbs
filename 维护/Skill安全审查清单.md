@@ -4,12 +4,12 @@
 > 目标：防止 skill 变成提示注入、凭据外带、未授权攻击或完整武器库的载体。  
 > Agent 流程见 `.agents/skills/kbs-skill-guard/SKILL.md`。脚本：[`review-kbs-skills.ps1`](review-kbs-skills.ps1)。
 
-## 一、本仓库 skill（提交前必须全过）
+## 一、本机 skill（改动前必须全过；`.agents/` 不入库）
 
 | # | 检查 | 通过标准 |
 | --- | --- | --- |
 | 1 | 职责 | 只做路由/周更/审查；不复述分册正文、不堆 payload |
-| 2 | 位置 | 仅 `.agents/skills/kbs-red-team`、`kbs-weekly-update`、`kbs-skill-guard`（新增须先改 README 白名单） |
+| 2 | 位置 | 仅本机 `.agents/skills/kbs-red-team`、`kbs-weekly-update`、`kbs-skill-guard`（新增须先改该目录 README 白名单）；**禁止** `git add` |
 | 3 | 无脚本 | 各 skill 目录 **无** `scripts/`、无 `.exe/.dll/.bin`、无 shellcode 文本块 |
 | 4 | Frontmatter | 有 `name` + `description`；description 第三人称，含 WHAT 与 WHEN |
 | 5 | 越权语句 | description 与正文 **无**「忽略系统提示 / 绕过红线 / 不要告诉用户 / jailbreak」 |
@@ -20,7 +20,7 @@
 | 10 | 篇幅 | 每个 `SKILL.md` < 500 行；细节链到 INDEX/SOP |
 | 11 | 脚本自检 | `review-kbs-skills.ps1` 退出码 0 |
 
-新增第四枚 skill：先更新 `.agents/skills/README.md` 白名单，再过本表，再提交。
+新增第四枚 skill：先更新本机 `.agents/skills/README.md` 白名单，再过本表；**不要提交** `.agents/`。
 
 ## 二、第三方 overlay（默认不入库）
 
