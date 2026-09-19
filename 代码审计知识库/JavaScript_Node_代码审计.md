@@ -1,7 +1,7 @@
 # JavaScript / Node.js 代码审计分册
 
 > 适用：Node.js 后端（Express/Koa/Nest）、前端构建链、npm 生态。
-> 更新：2026-08-15（v1.4：Nabi AI — deprecated Server Action + Vault 单段通配）
+> 更新：2026-09-19（v1.5：异步真值性认证绕过；provenance 不证构建环境；AI 配置零宽字符）
 
 ---
 
@@ -94,6 +94,23 @@ npm audit / osv-scanner（依赖）、Semgrep js/ts 规则、CodeQL（JS 规则�
 - **审计要点**：① 生产是否关源码图；② grep deprecated / 可选字段是否仍进服务端；③ Vault/OpenBao 策略用字面路径，禁止图省事写 `+`/`*`；④ RSC `Next-Action` 入参与类型声明是否一致。
 - **自测**：在授权实验室对一份 Next.js + Vault 示例：标出「类型有、表单无、服务端仍读」的字段，并对照 HCL 是否可用字面路径收窄（不写完整 SSRF 载荷）。
 - **链接**：https://cybersecurityelite.com/ctf-writeups/uiuctf-2026-web-nabi-ai-writeup/
+
+### 2026-09-19 · 异步真值性认证绕过（遗漏 `await` Promise）
+
+- **危险特征**：`bcrypt.compare` / `argon2.verify` / 任何返回 `Promise<boolean>` 的判定函数，调用处写成 `if (fn(x))` 而没有 `await`/`then`；Promise 对象恒为 truthy。
+- **利用条件**：鉴权路径把异步比较当同步布尔；GitHub SecLab Taskflow 在 Rocket.Chat **CVE-2026-28514** 上验证过（任意口令登录持有哈希的账户）。
+- **审计要点**：① grep 鉴权中间件里所有返回 Promise 的比较；② TS 开 `strict` + `@typescript-eslint/no-floating-promises` / `require-await`；③ 同类：未 await 的鉴权中间件、事务提交、权限缓存刷新竞态。
+- **自测**：标出一处 `if (compare(...))` 是否实际吃到布尔值。
+- **来源**：Ext 审计 09-15 批次 + GitHub Security Lab Taskflow 公开综述。
+
+### 2026-09-19 · provenance 只证身份 + AI 助手配置成新资产
+
+- **危险特征**：① 依赖 `preinstall`/`postinstall` 引导非 Node 运行时（如 Bun）执行载荷；② 为恶意发布生成「有效」Sigstore/OIDC provenance（身份真、构建环境已污）；③ `.cursorrules` / `CLAUDE.md` / `AGENTS.md` 含零宽 Unicode（`\u200b-\u200f`、`\u2060`）隐藏指令。
+- **利用条件**：CI 默认跑生命周期脚本；发布流水线被劫持（TanStack OIDC 事件谱系）；开发者用助手打开被投毒仓库。
+- **审计要点**：① provenance 验证不能替代流水线完整性/异常发布检测；② 审依赖时拦 install 钩子与 `build.rs`/`binding.gyp`；③ 仓库审计 checklist 增加「助手配置不可见字符扫描」。
+- **自测**：对示例仓列出 lifecycle 脚本与助手配置文件，跑一遍零宽字符扫描。
+- **局限**：TrapDoor / Mini Shai-Hulud / TanStack 为 2026 谱系综述（Ext 09-15）；具体战役细节以厂商通告为准，不写在野 IOC。
+- **来源**：Ext 审计分册 01 §2。
 
 ## 12. 参考资料
 

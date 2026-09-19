@@ -10,7 +10,7 @@
 # YYYY-MM-DD 每周渗透情报
 
 > 覆盖窗口：…  
-> 本周已扫源：P0 官方/厂商 □ · P0 AI 审计专扫 □ · P1 CTF 奇技 □ · P1 免杀/EDR □ · P1 钓鱼 □ · P1 边界设备 □ · P1 同类 skill 库 □ · P1 国际精读 n · P1 国内精读 n
+> 本周已扫源：P0 官方/厂商 □ · P0 **本地 Ext** □ · P0 AI 审计专扫 □ · P1 CTF 奇技 □ · P1 免杀/EDR □ · P1 钓鱼 □ · P1 边界设备 □ · P1 同类 skill 库 □ · P1 国际精读 n · P1 国内精读 n
 
 ## 1. 新漏洞与新利用（重点：可武器化的）
 | 漏洞/组件 | 类型 | 影响 | 利用成熟度 | 链接 | 建议动作 |
@@ -86,6 +86,7 @@
 
 | 期次 | 文件 | 亮点 |
 | --- | --- | --- |
+| 2026-09-19 | `2026-09-19_每周渗透情报.md` | **KEV 扎堆**：SMA **83548/83549**、LiteLLM **59822**、Starlette **48710**、NetScaler **19490**、FortiOS **25249**、ISE **76460**、V8 **85046/87491**；AI：AISLE×curl；CTF：约束清单 + UIUCTF jail Unicode；钓鱼：GhostCode 表单；skill：offensive-claude **v1.11**；**首次整合 Ext** |
 | 2026-08-29 | `2026-08-29_每周渗透情报.md` | **KEV 扎堆**：IKE **33824**、vCenter **59310**、MLflow **64849**、TrueConf、Zimbra、Gitea、**NetScaler 8452 升 KEV**；GitLab **19478** GraphQL；Nacos 注解错配；CTF：KCTF 十题 one-past-end；skill：**Claude-Red v0.3.0** |
 | 2026-08-18 | `2026-08-18_每周渗透情报.md` | **KEV：Ray 62593**（DNS rebinding+UA）；FortiOS **71407** WAD；AI：**Wiz Red Agent × Autofix**；CTF：CACHE 槽泄 XOR key；钓鱼：本机 Dashboard 水坑；skill：**offensive-claude v1.9**；免杀无达标 |
 | 2026-08-15 | `2026-08-15_每周渗透情报.md` | 无新 KEV；**PAN GP 0297/0298**；**NetScaler 8452** 升格；JumpServer 7-29；AI：HTTP Terminator；免杀：AMSI RPC + **签名阅读器 DLL 劫持**；CTF：cleanPath/`dangling-byte`/**Nabi AI**；**晚间**：Gunra→Fortinet Nday、Ivanti EPM、PhaaS 双模 |

@@ -30,6 +30,12 @@ GraphQL 专项：开 introspection 直接拉全 schema；没开就 fuzz 字段�
 - 金额用浮点/字符串时的小数精度与舍入方向；幂等键（`Idempotency-Key` / `clientMutationId`）能否重放同一笔或换金额重放
 - KYC/PII、管理员覆盖字段是否出现在普通用户可选的嵌套 selection 里（字段级授权，不是只挡顶层 mutation 名）
 
+业务状态机 / HPP / 上传（2026-09-19 对照 offensive-claude v1.11 coverage map 后改写，禁止照搬 SKILL.md）：
+
+- 价格、退款、工单状态迁移是否允许「跳步」或重复提交同一幂等键换金额
+- HTTP 参数污染（同名参数数组 vs 最后一个）：鉴权读 A、业务读 B
+- 上传：魔数、扩展名、存储名、内容处理（图床转码）四项必须正交，缺一按 RCE 候选项
+
 ## 2. 认证与令牌攻击
 
 ### JWT 攻击清单

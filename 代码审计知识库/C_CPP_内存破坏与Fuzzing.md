@@ -1,7 +1,7 @@
 # C/C++ 内存破坏审计与 Fuzzing 分册
 
 > 适用：C/C++ 服务端、解析库、中间件（Redis/Nginx 类目标）。
-> 更新：2026-07-31（v1.0）
+> 更新：2026-09-19（v1.3：curl TLS 六类清单；V8 JIT 回调后未重校验；九月协议解码热点）
 
 ---
 
@@ -74,7 +74,7 @@ AFL++（插桩 fuzzing）、libFuzzer/honggfuzz、ASAN/UBSAN/MSAN、GDB+pwndbg/g
 
 ---
 
-## 时效条目（2026-07 批次 + 2026-08-12 / 08-29）
+## 时效条目（2026-07 批次 + 2026-08-12 / 08-29 / 09-19）
 
 ### 基础设施组件 C 审计案例两则（本期重点）
 
@@ -114,4 +114,33 @@ AFL++（插桩 fuzzing）、libFuzzer/honggfuzz、ASAN/UBSAN/MSAN、GDB+pwndbg/g
 - **局限**：赛题特化到旧 libc hook；不写完整利用。
 - **链接**：https://bbs.kanxue.com/thread-292738.htm
 
-> 来源：F5 公告 K000162097 与 Stan Shaw/Zhenpeng Lin 研究、friday-go.icu 攻击链分析、奇安信 CERT 通告、爱坤sec Redis PoC 分析、Rapid7/ZDI 补丁日评述、mito753/Kernel-Exploit-Dojo、APNIC IronCurtain（2026-08-11）、看雪 KCTF 第十题 WP（2026-08）。
+### 2026-09-19 · JIT 回调后未重校验 map / 元素种类（V8 Maglev CVE-2026-85046 启示）
+
+- **危险特征**：内联数组内建（如 `Array.prototype.sort`）训练期假设 `PACKED_SMI`，比较器回调可迁移 receiver map/元素种类，优化代码操作后不重校验 → 类型混淆。
+- **利用条件**：可向目标投 HTML/JS（浏览器沙箱内任意写；完整 RCE 另需逃逸）。**KEV 09-04**；Chrome `<152.0.7977.82`。同窗还有 **CVE-2026-87491** V8 OOB 写（KEV 09-09）。
+- **审计要点**：凡「优化假设 + 用户回调可改对象形状」的 JIT/解释器路径，操作后必须再读 map；元素种类迁移是高频温床。禁止入库完整 addrof/fakeobj 链。
+- **自测**：列出项目中回调可改接收者类型、而后续仍按旧类型写的路径。
+- **链接**：CISA KEV CVE-2026-85046 · Chrome 稳定版公告
+
+### 2026-09-19 · curl 8.22.0：TLS 多后端与 Cookie 边界六类清单（AISLE）
+
+- **危险特征 / 检查单**：OpenSSL provider UAF；pinning 失败路径未中断；连接池复用时 CA 存储未重验；Cookie `Secure` 被 tab 绕过；wolfSSL CA 缓存回调被覆写；PSL 域 apex 被存成通配 Cookie。
+- **审计要点**：多 TLS 后端适配层、连接复用、Cookie/PSL 边界是「重审计库仍出低危 CVE」的典型冷门分支；机器批量发现 + 维护者裁定严重性已成常态。
+- **自测**：任选一处 pinning/连接复用，标出失败是否 `return`。
+- **链接**：https://aisle.com/blog/aisle-discovered-six-curl-cves-after-openai-and-anthropic-found-zero · https://curl.se/docs/CVE-2026-82209.html
+
+### 2026-09-19 · 九月补丁：协议解码 / XDR 仍是 Windows 原生 RCE 高产面
+
+- **危险特征**：MSMQ（CVE-2026-83997，TCP 1801 UAF）、Netlogon（CVE-2026-72982 栈溢）、SSTP（CVE-2026-73009 UAF）——均为未认证网络包 → RCE（以 MSRC 09-08 为准）。
+- **审计要点**：长度字段信任、内核/服务 IRP 输入、认证状态机跳转；汇编/指令集特化路径（对照 OpenSSL AVX 课）是 fuzz 盲区。
+- **自测**：资产表标出公网/内网 MSMQ、DC Netlogon、SSTP/RRAS 暴露。
+- **链接**：https://msrc.microsoft.com/update-guide/releaseNote/2026-Sep
+
+### 2026-09-19 · ECDSA nonce 部分比特 → HNP 格攻击（Anti-Slop CTF）
+
+- **危险特征**：签名服务调试预览/遥测泄露 nonce 低位（例：24 bit）；十余组签名即可归约 Hidden Number Problem。
+- **审计要点**：nonce 任何比特不得进日志/预览/错误信息；确定性 ECDSA（RFC 6979）仍须防故障注入。
+- **迁移价值**：密码实现审计，非仅赛题。
+- **链接**：cybersecurityelite Anti-Slop CTF 2026 crypto WP（Ext 09-15 转写）
+
+> 来源：F5 公告 K000162097 与 Stan Shaw/Zhenpeng Lin 研究、friday-go.icu 攻击链分析、奇安信 CERT 通告、爱坤sec Redis PoC 分析、Rapid7/ZDI 补丁日评述、mito753/Kernel-Exploit-Dojo、APNIC IronCurtain（2026-08-11）、看雪 KCTF 第十题 WP（2026-08）、AISLE/curl 8.22.0（2026-09-02）、MSRC 2026-09、Ext 审计 09-15。

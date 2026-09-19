@@ -1,20 +1,20 @@
 # 知识库总索引与高频速查表
 
 > **审计库加载入口**（人读导航见 [`README.md`](README.md)）。新对话先读本文件，再按需打开分册。  
-> 最近更新：2026-08-29（v1.12：MLflow SSRF 钉套接字；Nacos 注解作用域；GitLab 未来字段回落；KCTF one-past-end）
+> 最近更新：2026-09-19（v1.13：Harness Host 信任；LiteLLM MCP Bearer；V8 双 KEV；AISLE×curl；Starlette Host 走私）
 
 ## 一、分册索引
 
 | 分册文件 | 适用场景 | 核心内容 | 更新 |
 |---|---|---|---|
-| [通用审计方法论.md](通用审计方法论.md) | 所有项目开工前必读 | 审计三路径、patch diffing、fail-open、**AI 辅助审计**；**弃用仍接线**；**CI `run:` 注入**；**未来字段回落** | 2026-08-29 |
-| [综合分册_AI漏洞挖掘与态势.md](综合分册_AI漏洞挖掘与态势.md) | AI 挖洞 / 审 AI 应用 / **案例精析** | 工具方法论、Agent 攻击面、第五节案例提炼；**BugHunter 接地** | 2026-08-29 |
+| [通用审计方法论.md](通用审计方法论.md) | 所有项目开工前必读 | 审计三路径、patch diffing、fail-open、**AI 辅助审计**；**弃用仍接线**；**CI `run:` 注入**；**未来字段回落**；**Host/Bearer 不作信任根** | 2026-09-19 |
+| [综合分册_AI漏洞挖掘与态势.md](综合分册_AI漏洞挖掘与态势.md) | AI 挖洞 / 审 AI 应用 / **案例精析** | 工具方法论、Agent 攻击面、第五节案例提炼；**AISLE×curl** | 2026-09-19 |
 | [PHP_代码审计.md](PHP_代码审计.md) | PHP Web（CMS、论坛、商城） | SQLi、上传、包含、反序列化、弱类型；CI4 时效 | 2026-08-09 |
 | [Java_代码审计.md](Java_代码审计.md) | Java Web（Spring/Struts/Shiro） | 反序列化、表达式/SSTI、内存马；Tomcat fail-open；**JWT 验签**；**@Secured 作用域** | 2026-08-29 |
-| [Python_代码审计.md](Python_代码审计.md) | Python Web 与脚本 | pickle/yaml、SSTI、命令执行；**Langflow 执行面**；**MLflow webhook SSRF** | 2026-08-29 |
-| [JavaScript_Node_代码审计.md](JavaScript_Node_代码审计.md) | Node.js 后端 | 原型链污染、命令注入、NoSQL、供应链；**CRLF→desync**；**dangling-byte**；**Server Action / Vault `+`** | 2026-08-15 |
+| [Python_代码审计.md](Python_代码审计.md) | Python Web 与脚本 | pickle/yaml、SSTI、命令执行；**Langflow 执行面**；**MLflow webhook SSRF**；**Harness Host 信任**；**LiteLLM MCP**；**Starlette Host 走私** | 2026-09-19 |
+| [JavaScript_Node_代码审计.md](JavaScript_Node_代码审计.md) | Node.js 后端 | 原型链污染、命令注入、NoSQL、供应链；**CRLF→desync**；**dangling-byte**；**Server Action / Vault `+`**；**异步真值性**；**provenance≠构建完整** | 2026-09-19 |
 | [Go_代码审计.md](Go_代码审计.md) | Go 服务与工具 | 命令执行、SQL、SSRF、路径、并发 | 2026-07-31 |
-| [C_CPP_内存破坏与Fuzzing.md](C_CPP_内存破坏与Fuzzing.md) | C/C++ 二进制 | 内存破坏、AFL++、崩溃到 PoC；**字段 one-past-end** | 2026-08-29 |
+| [C_CPP_内存破坏与Fuzzing.md](C_CPP_内存破坏与Fuzzing.md) | C/C++ 二进制 | 内存破坏、AFL++、崩溃到 PoC；**字段 one-past-end**；**JIT 回调后未重校验**；**curl TLS 六类** | 2026-09-19 |
 
 ## 二、按需加载指引
 
@@ -64,6 +64,8 @@
 | 27 | Go err 静默丢弃 | err 未检查（尤其权限/边界检查返回） | 错误被忽略 → 逻辑绕过与状态错乱 |
 | 28 | 安全边界 fail-open | 解密/验签/鉴权失败只打日志仍继续 | 原始输入到达反序列化等 sink（Tomcat EncryptInterceptor 课） |
 | 29 | 上传校验不正交 | 只验 MIME/魔数、不验扩展名或存储名 | 图头 + `.php` 名落地可执行目录 → RCE |
+| 30 | 异步真值性鉴权 | `if (bcrypt.compare(...))` 未 `await`；Promise 恒真 | 任意口令通过持有哈希的账户（Rocket.Chat 28514 课） |
+| 31 | 控制面信任客户端头 | 本机/MCP API 只认 `Host`/`UA`/任意 Bearer | 沙箱自逃逸或未认证建会话（Harness / Ray / LiteLLM） |
 
 ## 四、维护说明
 

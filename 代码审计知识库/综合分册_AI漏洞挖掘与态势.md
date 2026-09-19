@@ -8,7 +8,7 @@
 > 五、**AI 审计案例提炼**（周更硬性：拆管线/提示词/验证闭环 → 可迁移纪律）。
 > **时效规则**：条目按批次排列，标注时间窗；单一来源未经厂商证实的条目标注"待核实"。
 > **入库红线**：仅公开研究；域名/IP/凭证/IOC/可直接复用载荷不入库。
-> 版本：v1.8（2026-08-18：Wiz Red Agent × Autofix；Ray KEV；CACHE 槽泄 key）
+> 版本：v1.9（2026-09-19：AISLE×curl；Harness 自逃逸；V8 双 KEV；Ext 09-15 整合）
 
 ---
 
@@ -111,7 +111,7 @@
 
 ---
 
-## 四、CTF 拾遗（2026-07 批次 + 2026-08-12 / 08-15 / 08-18 / 08-29 追加）
+## 四、CTF 拾遗（2026-07 批次 + 2026-08-12 / 08-15 / 08-18 / 08-29 / 09-19 追加）
 
 - **Crypto**：低指数攻击（e 过小开方/广播攻击）与密钥流重用（异或消 keystream）仍是送分点也是失分点；
 - **Web 通用**：JWT 三件套（alg=none、弱密钥爆破、HS/RS 混淆）出场率依旧最高；
@@ -187,6 +187,30 @@
 - **识别与自测**：搜字段 getter 的 `index <= len` / `index == size`；对照 arena 后方空闲 chunk
 - **局限**：赛题 libc-2.27 + `__free_hook` 特化；不入库完整利用链
 - **链接**：https://bbs.kanxue.com/thread-292738.htm
+
+### 2026-09-19 · 先列约束再设计链 + XOR 移出 badchars（TraceBash / Ext）
+
+- **技巧**：动手写 payload 前先枚举泄露源、过滤器、坏字符、传输层（PTY 会改控制字符）、防护；Banned Bytes 类题用 XOR-2 把禁用字节移出集合，经干净 gadget 在内存还原。
+- **适用面**：Pwn
+- **迁移价值**：**审计/打点方法论**——约束清单驱动链设计，不是先堆 shellcode；传输层二次过滤单独成约束。
+- **识别与自测**：列出过滤器字母表与传输编码是否会改 `0x0d/0x0a`。
+- **局限**：赛题 gadget 集特化；不入库完整 exploit。
+- **来源**：Ext 审计分册 05；TraceBash CTF 2026 WP（2026-08-10 公开）
+
+### 2026-09-19 · 分类器过滤 vs 语义不变的不可见字符（UIUCTF jail）
+
+- **技巧**：Java 源经 CNN 字符分类器后再跑；用标识符拆字、`\uXXXX` 对准热窗口、U+008A/U+0013 等 identifier-ignorable 打乱 n-gram，**编译语义不变**但模型 logit 翻转。
+- **适用面**：Misc / 供应链 / AI 助手配置
+- **迁移价值**：**审计危险特征**——凡「模型/正则扫源码再执行」的门禁，必须另做 Unicode 规范化 + 对编译后字节码/AST 扫，不能只扫可见源。对照助手配置零宽字符。
+- **识别与自测**：对示例 Java/助手配置跑 NFC + 不可见字符扫描，对照 `javac` 后是否仍等价。
+- **链接**：https://cybersecurityelite.com/ctf-writeups/uiuctf-2026-misc-writeup/
+
+### 2026-09-19 · MAC 密钥跨用途 = 缺域分离（Anti-Slop Sealed Signal）
+
+- **技巧**：缓存胶囊与 resume 胶囊共用 CBC-MAC 密钥；XOR 抵消固定域头后把合法 MAC 拼到禁止的 `role=root` 胶囊。
+- **适用面**：Crypto / 协议
+- **迁移价值**：**审计危险特征**——枚举全部 MAC/HMAC 调用，密钥或输入必须嵌入用途标识。
+- **来源**：Ext 审计分册 05
 
 ---
 
@@ -354,23 +378,33 @@
   - [ ] 第三方 skill 只对照缺口，全文不入库
 - **链接**：https://github.com/elementalsouls/Claude-BugHunter（commits #70–#75，08-24）
 
+### 2026-09-19 · AISLE × curl：机器批量发现 + 维护者裁定（AISLE / curl 8.22.0）
+
+- **场景**：对「已被前沿模型扫过、部署面极大」的 C 客户端库做自主审计；29 份报告中 6 份在数日内被 curl 安全组收为 Low CVE（OpenSSL provider UAF、pinning 绕过、CA 存储连接复用、tab 绕 Secure cookie、wolfSSL 回调覆盖、PSL apex Cookie）。
+- **管线与分工**：自主系统广撒网（容忍噪声）→ **人类维护者**按可利用性裁定严重性并出 CVE；发现引擎与 OpenAI Codex Security / Anthropic Mythos 同窗对照（公开叙述为 6:0）。
+- **提示词 / 任务拆解**：可复述——① 不要整库问「有没有洞」，把审查义务钉到**冷门分支**（多 TLS 后端、连接池复用、Cookie/PSL）；② 每条候选必须带失败路径是否中断的证据；③ 低危也入库检查单，因为成熟代码库剩余洞都长在配置交集上。
+- **工具与上下文**：源码 + 多 TLS 后端；无客户代码。
+- **验证闭环**：只认上游接受并分配 CVE 的条目；其余 23 份不升格。
+- **成果与局限**：证明「重审计库仍有洞」但多为 Low/窄配置；**不能**把「AI 发现 N 个 CVE」当能力完成——没有维护者裁定就只是候选。对维护方：建立 AI 报告过滤已是治理标配（curl 2025 垃圾报告有效率曾跌至 1/20）。
+- **可迁移纪律**：
+  - [ ] 对成熟 C 库优先投「多后端适配 / 连接复用 / 解析器空白符」而不是再扫 strcpy
+  - [ ] AI 产出必须自带失败路径是否中断的证据，否则不提交
+  - [ ] 发现计数与 CVE 计数分开记账；只把上游接受的写进分册
+- **链接**：https://aisle.com/blog/aisle-discovered-six-curl-cves-after-openai-and-anthropic-found-zero · https://seclists.org/oss-sec/2026/q3/637
+
 ---
 
-## 下期跟踪清单（2026-08-30 起，每周核查）
+## 下期跟踪清单（2026-09-19 起，每周核查）
 
-1. ~~Metabase~~ → **已升格** CVE-2026-72898 / KEV；未修按失陷假设；
-2. AD CS CVE-2026-62818：仍缺公开武器化细节；
-3. CVE-2026-42533（NGINX）公开 PoC 与 KEV 动向；
-4. Check Point CVE-2026-18574 在野确认；
-5. SharePoint 本月 PT 新 RCE（66808 等）武器化进度；**55040 已入 KEV**；
-6. ~~HTTP Terminator~~ → **已升格精析**；IronCurtain / FLAWED 复现笔记；
-7. **新公开 AI 代码审计案例** → 写入第五节（本周主条 BugHunter 接地；Taskflow Web 文为 3 月旧文）；
-8. Azure Key Vault CVE-2026-62825 官方公告核实；
-9. **IKE 33824 / vCenter 59310 / MLflow 64849 / GitLab 19478 / Gitea / TrueConf / Zimbra / Nacos** 补丁后残留；Ray 是否真开 token；
-10. FortiSandbox CVE-2026-39808；**CVE-2026-71407** 显式代理组合是否少见到可忽略；FortiManager **70468** 是否出现在野；
-11. PAN GP 0297/0298 是否入 KEV；国产 VPN **门户**通告继续滚；GitLab 19478 是否入 KEV；
-12. UIUCTF **官方** WP 仍观察；HITCON 08-21；
-13. Gunra / Fortinet 55591+24472 暴露面。
+1. AD CS CVE-2026-62818：仍缺公开武器化细节；
+2. CVE-2026-42533（NGINX）公开 PoC 与 KEV 动向；
+3. Check Point CVE-2026-18574 在野确认；
+4. Azure Key Vault CVE-2026-62825 官方公告核实；
+5. **SonicWall SMA 83548/83549、NetScaler 19490、FortiOS 25249、Cisco ISE 76460 / FMC 20079** 补丁后残留；
+6. DeepSeek Harness / LiteLLM MCP 公网暴露面；国产 VPN **门户**通告继续滚；
+7. UIUCTF **官方** WP 仍观察；HITCON 主赛 10-23～10-25；
+8. TrapDoor / provenance 伪造类别是否出现新编号通告；
+9. 提权 / 维持分册加厚（Claude-Red 对照后仍急）。
 
 ---
 

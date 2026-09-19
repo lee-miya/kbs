@@ -37,6 +37,18 @@ net user; net localgroup administrators
 
 判断链：`whoami /priv` 有 `SeImpersonate` → 按系统版本选 Potato → 执行 `cmd /c "net user h P@ss123 /add & net localgroup administrators h /add"`。
 
+### 协议服务暴露 ≈ 近 RCE（2026-09 补丁日邻接）
+
+未打 09-08 补丁时，下列**网络可达服务**本身就是未认证 RCE 面，不必先本地 LPE：
+
+| 服务 | CVE（MSRC） | 识别 |
+| --- | --- | --- |
+| MSMQ | CVE-2026-83997 UAF | TCP **1801** |
+| Netlogon（DC） | CVE-2026-72982 栈溢 | 域控网络 |
+| SSTP / RRAS | CVE-2026-73009 UAF | VPN/隧道口 |
+
+打点纪律：内网先问「这些角色是否在」再决定是协议打还是 Potato。禁止完整报文。来源：MSRC September 2026。
+
 ### 服务配置错误
 ```powershell
 # 服务二进制可写
@@ -67,3 +79,4 @@ wmic service get name,pathname | findstr /i "program files"
 - [ ] 看到 `SeImpersonatePrivilege` 能按 OS 版本选出正确 Potato 并写出完整命令。
 - [ ] 能解释「未加引号服务路径」的利用条件与落点。
 - [ ] 能区分「提权」与「UAC 绕过」的本质差异。
+- [ ] 能说出 2026-09 补丁日至少 2 个「服务暴露即近 RCE」的协议角色（MSMQ / Netlogon / SSTP）。

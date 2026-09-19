@@ -1,7 +1,7 @@
 # Python 代码审计分册
 
 > 适用：Python Web（Flask/Django/FastAPI）、脚本与工具。
-> 更新：2026-08-29（v1.4：MLflow webhook SSRF 不完整修复）
+> 更新：2026-09-19（v1.5：Harness Host 头信任；LiteLLM MCP Bearer；Starlette Host 路径走私）
 
 ---
 
@@ -114,6 +114,30 @@ bandit（官方安全扫描）、Semgrep python 规则集、CodeQL、pip-audit�
 - **审计要点**：① 不完整修复 = 只挡直连内网、不挡跳转/再绑定；② 正确形态是 connect 后校验**已连接对端 IP**（MLflow `SSRFProtectedHTTPAdapter`）；③ 回显 body 的「测试投递」口按全读 SSRF 审。
 - **自测**：标出项目中所有「先校验 URL 再 requests.get」且跟随重定向的函数。
 - **链接**：https://github.com/mlflow/mlflow/security/advisories/GHSA-7gwp-5pfp-969j
+
+### 2026-09-19 · 本地控制面信任 `Host` + 沙箱放行 loopback（DeepSeek Harness CVE-2026-82533）
+
+- **危险特征**：本机 HTTP 控制 API 无认证；`isTrustedRequest` 只认客户端 `Host`（回环名）而不校验 TCP 对端；OS 沙箱限文件写但放行 loopback。
+- **利用条件**：默认配置即可——被沙箱约束的 agent 一条 shell 调控制面，把自己升到 `danger-full-access` 并关审批（CWE-807）。端口经隧道/反代暴露则未认证远程全控 + 导出会话。
+- **审计要点**：① 本地控制面必须 token/cookie/Unix socket，禁止 Host/X-Forwarded-* 当真值；② 沙箱网络隔离覆盖 loopback；③ 画出 agent 工具 → 控制面 API 可达图。修复：`0.1.2-alpha.1`。
+- **自测**：标出项目中所有「只认 Host/UA 的本机管理 API」；对照 Ray Dashboard UA 黑名单课。
+- **链接**：https://www.ox.security/blog/cve-2026-82533-deepseek-harness-ai-agent-sandbox-escape/ · NVD CVE-2026-82533
+
+### 2026-09-19 · MCP Streamable HTTP 任意 Bearer（LiteLLM CVE-2026-59822，KEV 09-02）
+
+- **危险特征**：MCP 端点把任意 `Authorization: Bearer …` 当成已认证会话，未校验令牌是否由本服务签发。
+- **利用条件**：LiteLLM MCP HTTP 口网络可达；蜜罐已见探测模型枚举。升厂商修复版（公开 GHSA 指向 1.84.0 量级，以公告为准）。
+- **审计要点**：MCP/Agent 网关的 Bearer 必须绑定签发者与受众；「有头就算登录」= 未认证。同类：WeKnora 工具名碰撞（MCP 同名劫持）。
+- **自测**：对 MCP 端点投一个随机 Bearer，看是否建立会话（授权实验室）。
+- **链接**：https://github.com/BerriAI/litellm/security/advisories/GHSA-7488-6r32-c95q · CISA KEV 09-02
+
+### 2026-09-19 · Host 注入把路径拼进权威 URL（Starlette CVE-2026-48710，KEV 09-02）
+
+- **危险特征**：从 `Host` 重建 URL 时允许把路径片段注入 host 部分，真实 path 被前置；鉴权若依赖「重建后的 path」可被绕过。可与 CVE-2026-42271 链式。
+- **利用条件**：ASGI 应用/反代把 Host 当权威；认证中间件读重建 URL 而非原始 path。
+- **审计要点**：Host 不得携带 `/`；鉴权钉原始 path；HTTP 走私/Host 规范化对照 Node CRLF 课。
+- **自测**：标出 `request.url.path` 是否来自 Host 重建。
+- **链接**：CISA KEV 09-02 Starlette 条目
 
 （下期继续：其他 Python Agent 框架同类模式对照。）
 
