@@ -71,6 +71,10 @@ wmic service get name,pathname | findstr /i "program files"
 
 > 2026-08 PT：CVE-2026-68820（AFD.sys UAF→SYSTEM）已在野，与钓鱼初始访问链叠加时补丁优先级极高。详见 `12_每周情报/2026-08-12_每周渗透情报.md`。
 
+> 2026-10 PT（约 1400+ 条）：在野的是 **CVE-2026-96951**，那是 MOTW 绕过，归 03-01，不是本地提权。同月另两条要进提权判断：
+> - **CVE-2026-108398**：.NET 不可信搜索路径可绕过 WDAC，公开披露、未确认在野。看应用控制策略是否仍信任可被劫持的搜索路径。
+> - **CVE-2026-85884**：WHESVC 提权。奇安信称可经诊断工作流让 LocalSystem 服务加载可控模块；机制 **待核实**，以 MSRC 为准。不写加载步骤。
+
 ## 5. 提权后固化
 - `net user` 影子账户 / 克隆管理员（07 分册）。
 - 抓凭据衔接 05-02：`sekurlsa::logonpasswords`、SAM/SYSTEM dump。

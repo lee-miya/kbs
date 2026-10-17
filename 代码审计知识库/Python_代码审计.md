@@ -1,7 +1,7 @@
 # Python 代码审计分册
 
 > 适用：Python Web（Flask/Django/FastAPI）、脚本与工具。
-> 更新：2026-09-19（v1.5：Harness Host 头信任；LiteLLM MCP Bearer；Starlette Host 路径走私）
+> 更新：2026-10-17（v1.6：pickle 字节过滤与流结束标记）
 
 ---
 
@@ -138,6 +138,14 @@ bandit（官方安全扫描）、Semgrep python 规则集、CodeQL、pip-audit�
 - **审计要点**：Host 不得携带 `/`；鉴权钉原始 path；HTTP 走私/Host 规范化对照 Node CRLF 课。
 - **自测**：标出 `request.url.path` 是否来自 Host 重建。
 - **链接**：CISA KEV 09-02 Starlette 条目
+
+### 2026-10-17 · pickle 黑名单滤的是字节，不是对象图（PwnSec Time Capsule）
+
+- **危险特征**：受限 unpickler 在**原始字节**上禁子串（模块名、属性名、句点）；流结束标记的字节正好落在黑名单里；外层用裸 `except` 吞掉截断流的 `EOFError` 并继续。
+- **利用条件**：应用对不可信 pickle 做「字节黑名单 + 受限 find_class」，而不是拒绝 pickle。赛题还有三层过滤器，迁移时只取这一条。
+- **审计要点**：① 禁止 pickle 不可信输入，白名单类也要在解码后的 opcode 上做；② 黑名单若包含流结束字节，截断流不能算失败；③ 裸 `except` 包住 `loads` 等于把解析错误变成成功。
+- **自测**：标出项目里所有 `pickle.loads` / `RestrictedUnpickler`，看过滤发生在字节上还是 opcode 上。不写能过过滤器的字节流。
+- **链接**：https://kessentini-youssef.dev/2026/09/16/PwnSec-CTF-2026/
 
 （下期继续：其他 Python Agent 框架同类模式对照。）
 

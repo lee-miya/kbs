@@ -1,18 +1,18 @@
 # 知识库总索引与高频速查表
 
 > **审计库加载入口**（人读导航见 [`README.md`](README.md)）。新对话先读本文件，再按需打开分册。  
-> 最近更新：2026-09-19（v1.13：Harness Host 信任；LiteLLM MCP Bearer；V8 双 KEV；AISLE×curl；Starlette Host 走私）
+> 最近更新：2026-10-17（v1.14：FORGE 管线指标；GitLab 正则编译器；Handlebars AST；pickle 字节过滤；Duo 提示词注入）
 
 ## 一、分册索引
 
 | 分册文件 | 适用场景 | 核心内容 | 更新 |
 |---|---|---|---|
-| [通用审计方法论.md](通用审计方法论.md) | 所有项目开工前必读 | 审计三路径、patch diffing、fail-open、**AI 辅助审计**；**弃用仍接线**；**CI `run:` 注入**；**未来字段回落**；**Host/Bearer 不作信任根** | 2026-09-19 |
-| [综合分册_AI漏洞挖掘与态势.md](综合分册_AI漏洞挖掘与态势.md) | AI 挖洞 / 审 AI 应用 / **案例精析** | 工具方法论、Agent 攻击面、第五节案例提炼；**AISLE×curl** | 2026-09-19 |
+| [通用审计方法论.md](通用审计方法论.md) | 所有项目开工前必读 | 审计三路径、patch diffing、fail-open、**AI 辅助审计**；**弃用仍接线**；**CI `run:` 注入**；**未来字段回落**；**Host/Bearer 不作信任根**；**编译器入口 / AST 校验差集** | 2026-10-17 |
+| [综合分册_AI漏洞挖掘与态势.md](综合分册_AI漏洞挖掘与态势.md) | AI 挖洞 / 审 AI 应用 / **案例精析** | 工具方法论、Agent 攻击面、第五节案例提炼；**FORGE/MDASH**；**Duo 提示词注入** | 2026-10-17 |
 | [PHP_代码审计.md](PHP_代码审计.md) | PHP Web（CMS、论坛、商城） | SQLi、上传、包含、反序列化、弱类型；CI4 时效 | 2026-08-09 |
 | [Java_代码审计.md](Java_代码审计.md) | Java Web（Spring/Struts/Shiro） | 反序列化、表达式/SSTI、内存马；Tomcat fail-open；**JWT 验签**；**@Secured 作用域** | 2026-08-29 |
-| [Python_代码审计.md](Python_代码审计.md) | Python Web 与脚本 | pickle/yaml、SSTI、命令执行；**Langflow 执行面**；**MLflow webhook SSRF**；**Harness Host 信任**；**LiteLLM MCP**；**Starlette Host 走私** | 2026-09-19 |
-| [JavaScript_Node_代码审计.md](JavaScript_Node_代码审计.md) | Node.js 后端 | 原型链污染、命令注入、NoSQL、供应链；**CRLF→desync**；**dangling-byte**；**Server Action / Vault `+`**；**异步真值性**；**provenance≠构建完整** | 2026-09-19 |
+| [Python_代码审计.md](Python_代码审计.md) | Python Web 与脚本 | pickle/yaml、SSTI、命令执行；**Langflow 执行面**；**MLflow webhook SSRF**；**Harness Host 信任**；**LiteLLM MCP**；**Starlette Host 走私**；**pickle 字节黑名单** | 2026-10-17 |
+| [JavaScript_Node_代码审计.md](JavaScript_Node_代码审计.md) | Node.js 后端 | 原型链污染、命令注入、NoSQL、供应链；**CRLF→desync**；**dangling-byte**；**Server Action / Vault `+`**；**异步真值性**；**provenance≠构建完整**；**Handlebars AST** | 2026-10-17 |
 | [Go_代码审计.md](Go_代码审计.md) | Go 服务与工具 | 命令执行、SQL、SSRF、路径、并发 | 2026-07-31 |
 | [C_CPP_内存破坏与Fuzzing.md](C_CPP_内存破坏与Fuzzing.md) | C/C++ 二进制 | 内存破坏、AFL++、崩溃到 PoC；**字段 one-past-end**；**JIT 回调后未重校验**；**curl TLS 六类** | 2026-09-19 |
 

@@ -1,7 +1,7 @@
 # JavaScript / Node.js 代码审计分册
 
 > 适用：Node.js 后端（Express/Koa/Nest）、前端构建链、npm 生态。
-> 更新：2026-09-19（v1.5：异步真值性认证绕过；provenance 不证构建环境；AI 配置零宽字符）
+> 更新：2026-10-17（v1.6：Handlebars 预解析 AST 类型混淆）
 
 ---
 
@@ -111,6 +111,14 @@ npm audit / osv-scanner（依赖）、Semgrep js/ts 规则、CodeQL（JS 规则�
 - **自测**：对示例仓列出 lifecycle 脚本与助手配置文件，跑一遍零宽字符扫描。
 - **局限**：TrapDoor / Mini Shai-Hulud / TanStack 为 2026 谱系综述（Ext 09-15）；具体战役细节以厂商通告为准，不写在野 IOC。
 - **来源**：Ext 审计分册 01 §2。
+
+### 2026-10-17 · Handlebars 对预解析 AST 的校验漏了节点类型（CVE-2026-106446）
+
+- **危险特征**：`compile()` / `precompile()` 既接受模板字符串，也接受调用方传入的 AST 对象。4.7.9 的校验只覆盖少数节点，其余字段仍写进生成的 JavaScript。这是对上一轮 AST 校验的绕过。
+- **利用条件**：不可信对象（例如请求 JSON）被直接交给 `compile` / `precompile`。**只传模板字符串的应用不受影响。** 4.0.0 至 4.7.9；修 4.7.10。
+- **审计要点**：① 搜 `Handlebars.compile` / `precompile` 的实参是不是字符串；② 用户 JSON 不得进编译器；③ 「已经校验过 AST」要核对覆盖了哪些节点类型，没覆盖的字段仍是代码生成汇。
+- **自测**：标出每一处 compile 的入参类型。不写能生成代码的 AST 片段。
+- **链接**：https://github.com/handlebars-lang/handlebars.js/security/advisories/GHSA-8r5x-fm3f-whwj
 
 ## 12. 参考资料
 

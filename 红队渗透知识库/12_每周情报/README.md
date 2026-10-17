@@ -86,6 +86,7 @@
 
 | 期次 | 文件 | 亮点 |
 | --- | --- | --- |
+| 2026-10-17 | `2026-10-17_每周渗透情报.md` | **KEV 扎堆**：FortiMail **104286**、Connect Secure **104935**、PAN-OS **0322**、NetScaler **88771/88779**、Check Point **85102/93616**、Cisco ESA **76519**、BeyondTrust **102764**；AI：**FORGE/MDASH**；CTF：pickle 字节过滤；钓鱼：短码最后一跳 + MOTW **96951**；skill：offensive-claude **v1.13**；Ext 无新原料 |
 | 2026-09-19 | `2026-09-19_每周渗透情报.md` | **KEV 扎堆**：SMA **83548/83549**、LiteLLM **59822**、Starlette **48710**、NetScaler **19490**、FortiOS **25249**、ISE **76460**、V8 **85046/87491**；AI：AISLE×curl；CTF：约束清单 + UIUCTF jail Unicode；钓鱼：GhostCode 表单；skill：offensive-claude **v1.11**；**首次整合 Ext** |
 | 2026-08-29 | `2026-08-29_每周渗透情报.md` | **KEV 扎堆**：IKE **33824**、vCenter **59310**、MLflow **64849**、TrueConf、Zimbra、Gitea、**NetScaler 8452 升 KEV**；GitLab **19478** GraphQL；Nacos 注解错配；CTF：KCTF 十题 one-past-end；skill：**Claude-Red v0.3.0** |
 | 2026-08-18 | `2026-08-18_每周渗透情报.md` | **KEV：Ray 62593**（DNS rebinding+UA）；FortiOS **71407** WAD；AI：**Wiz Red Agent × Autofix**；CTF：CACHE 槽泄 XOR key；钓鱼：本机 Dashboard 水坑；skill：**offensive-claude v1.9**；免杀无达标 |
